@@ -2,6 +2,7 @@
 #include "Audio.h"
 #include "DirectXCommon.h"
 #include "Input.h"
+#include "Skydome.h"
 #include "Sprite.h"
 #include <Model.h>
 #include "WorldTransform.h"
@@ -32,8 +33,17 @@ private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
 	ViewProjection viewProjection_;
+
+	// テクスチャハンドル
+	uint32_t textureHandle_ = 0;
+
 	// モデル
 	Model* model_ = nullptr;
 
 	bool finished_ = false;
+
+	// SkyDome
+	Skydome* skydome_ = nullptr;
+	Model* modelSkydome_ = nullptr;
+	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 };

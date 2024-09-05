@@ -2,7 +2,10 @@
 
 TitleScene::TitleScene() {}
 
-TitleScene::~TitleScene() { delete model_; }
+TitleScene::~TitleScene() { 
+	delete model_; 
+	delete skydome_;
+}
 
 void TitleScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
@@ -12,6 +15,11 @@ void TitleScene::Initialize() {
 	model_ = Model::CreateFromOBJ("title", true);
 	worldTransform_.Initialize();
 	viewProjection_.Initialize();
+
+	// SkyDome
+	skydome_ = new Skydome();
+	modelSkydome_ = Model::CreateFromOBJ("skydomeTitle", true);
+	skydome_->Initialize(modelSkydome_, &viewProjection_);
 }
 
 void TitleScene::Update() {
@@ -54,6 +62,8 @@ void TitleScene::Draw() {
 
 
 	model_->Draw(worldTransform_, viewProjection_);
+
+	skydome_->Draw();
 
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
