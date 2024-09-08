@@ -120,11 +120,11 @@ void GameScene::Update() {
 		cameraController_->Update();
 	}
 
-	for (Enemy* enemy : enemies_) {
+	/*for (Enemy* enemy : enemies_) {
 		if (!nullptr) {
 			enemy->Update();
 		}
-	}
+	}*/
 
 	// Block
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -220,11 +220,11 @@ void GameScene::Draw() {
 		player_->Draw();
 	}
 
-	for (Enemy* enemy : enemies_) {
+	/*for (Enemy* enemy : enemies_) {
 		if (!nullptr) {
 			enemy->Draw();
 		}
-	}
+	}*/
 
 	if (player_->GetIsDead_() == true) {
 		deathParticles_->Draw();
