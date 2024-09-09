@@ -22,7 +22,7 @@ void MapChipField::ResetMapChipData() {
 }
 
 void MapChipField::LoadMapChipCsv(const std::string& filePath) {
-	// マップチップデータをリセット
+	// マップチップデータをリセット//
 	ResetMapChipData();
 
 	// ファイルを開く
