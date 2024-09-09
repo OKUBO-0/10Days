@@ -43,13 +43,15 @@ public:
 	IndexSet GetMapChipIndexSetByPosition(const Vector3& posotopn);
 	Rect GetRectByIndex(uint32_t xindex, uint32_t yIndex);
 
+	void InvertMap();
+
 private:
 	// 1ブロックのサイズ
 	static inline const float kBlockWidth = 1.0f;
 	static inline const float kBlockHeight = 1.0f;
 	// ブロック個数
-	static inline const uint32_t kNumBlockVirtical = 20;
-	static inline const uint32_t kNumBlockHorizontal = 1000;
+	static inline const uint32_t kNumBlockVirtical = 50;
+	static inline const uint32_t kNumBlockHorizontal = 100;
 	MapChipData mapChipData_;
 	
 };

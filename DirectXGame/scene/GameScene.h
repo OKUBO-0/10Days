@@ -64,6 +64,10 @@ public: // メンバ関数
 
 	//フェーズ切り替え
 	void ChangePhase();
+	void InvertBlockPositionsWithCentering();
+
+
+
 
 	bool  GetIsFinished() const { return finished_; }
 

@@ -91,3 +91,28 @@ Rect MapChipField::GetRectByIndex(uint32_t xindex, uint32_t yIndex) {
 
 
 }
+
+void MapChipField::InvertMap() {
+	// 垂直反転 & 0/1の入れ替え
+	for (uint32_t y = 0; y < kNumBlockVirtical / 2; ++y) {
+		// 上下の行を入れ替えながら、0と1も入れ替える
+		for (uint32_t x = 0; x < kNumBlockHorizontal; ++x) {
+			std::swap(mapChipData_.data[y][x], mapChipData_.data[kNumBlockVirtical - 1 - y][x]);
+
+			// それぞれの値を入れ替え
+			mapChipData_.data[y][x] = (mapChipData_.data[y][x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
+			mapChipData_.data[kNumBlockVirtical - 1 - y][x] = (mapChipData_.data[kNumBlockVirtical - 1 - y][x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
+		}
+	}
+
+	// 水平反転 & 0/1の入れ替え
+	for (uint32_t y = 0; y < kNumBlockVirtical; ++y) {
+		for (uint32_t x = 0; x < kNumBlockHorizontal / 2; ++x) {
+			std::swap(mapChipData_.data[y][x], mapChipData_.data[y][kNumBlockHorizontal - 1 - x]);
+
+			// それぞれの値を入れ替え
+			mapChipData_.data[y][x] = (mapChipData_.data[y][x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
+			mapChipData_.data[y][kNumBlockHorizontal - 1 - x] = (mapChipData_.data[y][kNumBlockHorizontal - 1 - x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
+		}
+	}
+}
