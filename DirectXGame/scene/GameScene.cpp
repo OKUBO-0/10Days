@@ -81,7 +81,7 @@ void GameScene::Initialize() {
 	}
 
 	// CameraController
-	CameraController::Rect cameraArea = { 0.0f, 100 - 12.0f, 6.0f, 6.0f };
+	CameraController::Rect cameraArea = { 11.0f, 28.0f, 6.0f, 48.0f };
 	cameraController_ = new CameraController();
 	cameraController_->Initialize();
 	cameraController_->SetTarget(player_);
