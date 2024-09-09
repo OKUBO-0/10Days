@@ -59,7 +59,8 @@ void Player::PrayerMove() {
 
 				accceleration.x += kAccleration;
 
-			} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+			}
+			else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
 
 				if (velocity_.x > 0.0f) {
 					velocity_.x *= (1.0f - kAttenuation);
@@ -78,7 +79,8 @@ void Player::PrayerMove() {
 
 			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
 
-		} else {
+		}
+		else {
 
 			velocity_.x *= (1.0f - kAttenuation);
 			velocity_.y *= (1.0f - kAttenuation);
@@ -92,7 +94,8 @@ void Player::PrayerMove() {
 			velocity_.z += 0;
 		}
 
-	} else {
+	}
+	else {
 		// 落下速度
 		velocity_.x += 0;
 		velocity_.y += -kGravityAccleration;
@@ -109,8 +112,8 @@ void Player::PrayerTurn() {
 
 		// 左右の角度テーブル
 		float destinationRotationYTable[] = {
-		    std::numbers::pi_v<float> / 2.0f,
-		    std::numbers::pi_v<float> * 3.0f / 2.0f,
+			std::numbers::pi_v<float> / 2.0f,
+			std::numbers::pi_v<float> *3.0f / 2.0f,
 		};
 		// 状態に応じた角度を取得する
 		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
@@ -133,11 +136,11 @@ Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 
 	Vector3 offseetTable[kNumCorner] = {
 
-	    {+kWidth / 2.0f, -kHeight / 2.0f, 0},
-        {-kWidth / 2.0f, -kHeight / 2.0f, 0},
-        {+kWidth / 2.0f, +kHeight / 2.0f, 0},
-        {-kWidth / 2.0f, +kHeight / 2.0f, 0}
-    };
+		{+kWidth / 2.0f, -kHeight / 2.0f, 0},
+		{-kWidth / 2.0f, -kHeight / 2.0f, 0},
+		{+kWidth / 2.0f, +kHeight / 2.0f, 0},
+		{-kWidth / 2.0f, +kHeight / 2.0f, 0}
+	};
 
 	return center + offseetTable[static_cast<uint32_t>(corner)];
 }
@@ -166,7 +169,8 @@ void Player::OnGroundSwitching(const CollisionMapInfo& info) {
 
 			onGround_ = false;
 
-		} else {
+		}
+		else {
 			// 移動後4つの計算
 			std::array<Vector3, kNumCorner> positionsNew;
 			for (uint32_t i = 0; i < positionsNew.size(); ++i) {
@@ -196,7 +200,8 @@ void Player::OnGroundSwitching(const CollisionMapInfo& info) {
 			}
 		}
 
-	} else {
+	}
+	else {
 
 		if (info.landing) {
 			DebugText::GetInstance()->ConsolePrintf("hit landing\n");
@@ -384,14 +389,15 @@ Vector3 Player::GetWorldPosition() {
 	worldPos.x = worldTransform_.matWorld_.m[3][0];
 	worldPos.y = worldTransform_.matWorld_.m[3][1];
 	worldPos.z = worldTransform_.matWorld_.m[3][2];
-	return worldPos;
+
+	return worldTransform_.translation_;
 }
 
 AABB Player::GetAABB() {
 	Vector3 worldPos = GetWorldPosition();
 	AABB aabb;
-	aabb.min = {worldPos.x - kWidth / 2.0f, worldPos.y - kHeight / 2.0f, worldPos.z - kWidth / 2.0f};
-	aabb.max = {worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f};
+	aabb.min = { worldPos.x - kWidth / 2.0f, worldPos.y - kHeight / 2.0f, worldPos.z - kWidth / 2.0f };
+	aabb.max = { worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f };
 
 	return aabb;
 }
@@ -401,6 +407,13 @@ void Player::OnCollision(const Enemy* enemy) {
 	(void)enemy;
 	//velocity_.y += kJampAcceleration;
 	isDead_ = true;
+}
+
+void Player::SetWorldPosition(const Vector3& newPosition)
+{
+	position_ = newPosition;
+	worldTransform_.translation_ = newPosition;  // ワールドトランスフォームの位置も更新
+	worldTransform_.UpdateMatrix();  // 行列を更新して反映
 }
 
 float Player::EaseOutSine(float x) { return cosf((x * std::numbers::pi_v<float>) / 2); }
