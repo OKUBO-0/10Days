@@ -5,29 +5,29 @@
 #include <string>
 #include <vector>
 
-	enum class MapChipType {
+enum class MapChipType {
 
-		kBlank, // 空白
-		kBlock, // ブロック
+	kBlank, // 空白
+	kBlock, // ブロック
 
-	};
-	struct MapChipData {
+};
+struct MapChipData {
 
-		std::vector<std::vector<MapChipType>> data;
-	};
+	std::vector<std::vector<MapChipType>> data;
+};
 
-	struct IndexSet {
-		uint32_t xIndex;
-		uint32_t yIndex;
-	};
+struct IndexSet {
+	uint32_t xIndex;
+	uint32_t yIndex;
+};
 
-	struct Rect {
+struct Rect {
 
-	    float left ;
-	    float right ;
-	    float bottom ;
-	    float top  ;
-    };
+	float left;
+	float right;
+	float bottom;
+	float top;
+};
 
 class MapChipField {
 
@@ -43,13 +43,15 @@ public:
 	IndexSet GetMapChipIndexSetByPosition(const Vector3& posotopn);
 	Rect GetRectByIndex(uint32_t xindex, uint32_t yIndex);
 
+	void InvertMap();
+
 private:
 	// 1ブロックのサイズ
 	static inline const float kBlockWidth = 1.0f;
 	static inline const float kBlockHeight = 1.0f;
 	// ブロック個数
-	static inline const uint32_t kNumBlockVirtical = 20;
-	static inline const uint32_t kNumBlockHorizontal = 1000;
+	static inline const uint32_t kNumBlockVirtical = 50;
+	static inline const uint32_t kNumBlockHorizontal = 100;
 	MapChipData mapChipData_;
-	
+
 };

@@ -5,10 +5,10 @@
 
 namespace {
 
-std::map<std::string, MapChipType> mapChipTable = {
-    {"0", MapChipType::kBlank},
-    {"1", MapChipType::kBlock},
-};
+	std::map<std::string, MapChipType> mapChipTable = {
+		{"0", MapChipType::kBlank},
+		{"1", MapChipType::kBlock},
+	};
 
 }
 
@@ -71,8 +71,8 @@ MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex
 
 Vector3 MapChipField::GetMapChipPostionByIndex(uint32_t xIndex, uint32_t yIndex) { return Vector3(kBlockWidth * xIndex, kBlockHeight * (kNumBlockVirtical - 1 - yIndex), 0); }
 
-IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3& position) { 
-	IndexSet indexSet = {}; 
+IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3& position) {
+	IndexSet indexSet = {};
 	indexSet.xIndex = static_cast<uint32_t>((position.x + kBlockWidth / 2) / kBlockWidth);
 	indexSet.yIndex = kNumBlockVirtical - 1 - static_cast<uint32_t>((position.y + kBlockHeight / 2) / kBlockHeight);
 	return indexSet;
@@ -90,4 +90,29 @@ Rect MapChipField::GetRectByIndex(uint32_t xindex, uint32_t yIndex) {
 	return rect;
 
 
+}
+
+void MapChipField::InvertMap() {
+	// 垂直反転 & 0/1の入れ替え
+	for (uint32_t y = 0; y < kNumBlockVirtical / 2; ++y) {
+		// 上下の行を入れ替えながら、0と1も入れ替える
+		for (uint32_t x = 0; x < kNumBlockHorizontal; ++x) {
+			std::swap(mapChipData_.data[y][x], mapChipData_.data[kNumBlockVirtical - 1 - y][x]);
+
+			// それぞれの値を入れ替え
+			mapChipData_.data[y][x] = (mapChipData_.data[y][x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
+			mapChipData_.data[kNumBlockVirtical - 1 - y][x] = (mapChipData_.data[kNumBlockVirtical - 1 - y][x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
+		}
+	}
+
+	// 水平反転 & 0/1の入れ替え
+	for (uint32_t y = 0; y < kNumBlockVirtical; ++y) {
+		for (uint32_t x = 0; x < kNumBlockHorizontal / 2; ++x) {
+			std::swap(mapChipData_.data[y][x], mapChipData_.data[y][kNumBlockHorizontal - 1 - x]);
+
+			// それぞれの値を入れ替え
+			mapChipData_.data[y][x] = (mapChipData_.data[y][x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
+			mapChipData_.data[y][kNumBlockHorizontal - 1 - x] = (mapChipData_.data[y][kNumBlockHorizontal - 1 - x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
+		}
+	}
 }

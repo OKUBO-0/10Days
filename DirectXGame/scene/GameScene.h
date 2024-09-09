@@ -64,6 +64,10 @@ public: // メンバ関数
 
 	//フェーズ切り替え
 	void ChangePhase();
+	void InvertBlockPositionsWithCentering();
+
+
+
 
 	bool  GetIsFinished() const { return finished_; }
 
@@ -118,7 +122,7 @@ private: // メンバ変数
 
 	//死エフェクト
 	DeathParticles* deathParticles_ = nullptr;
-	Model* deathParticlesModel_= nullptr;
+	Model* deathParticlesModel_ = nullptr;
 
 	//フェーズ
 	Phase phase_;

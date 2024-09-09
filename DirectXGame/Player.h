@@ -67,7 +67,7 @@ public:
 
 	Vector3 GetWorldPosition();
 	AABB GetAABB();
-	void OnCollision(const Enemy*enemy);
+	void OnCollision(const Enemy* enemy);
 
 	bool GetIsDead_() const { return isDead_; }
 

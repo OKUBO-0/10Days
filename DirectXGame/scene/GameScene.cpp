@@ -67,7 +67,7 @@ void GameScene::Initialize() {
 	// Player
 	player_ = new Player();
 	model_ = Model::CreateFromOBJ("player", true); // 3Dモデルの生成
-	Vector3 playerPostion = mapChipField_->GetMapChipPostionByIndex(1, 18);
+	Vector3 playerPostion = mapChipField_->GetMapChipPostionByIndex(1, 28);
 	player_->SetMapChipField(mapChipField_);
 	player_->Initialize(model_, &viewProjection_, playerPostion);
 
@@ -159,6 +159,13 @@ void GameScene::Update() {
 		viewProjection_.matProjection = cameraController_->GetViewProjection().matProjection;
 		// ビュープロジェクション行列の更新と転送
 		viewProjection_.TransferMatrix();
+	}
+
+
+	//反転処理
+	if (input_->TriggerKey(DIK_DOWN)) {
+		mapChipField_->InvertMap();
+		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
 	}
 }
 
@@ -295,5 +302,31 @@ void GameScene::ChangePhase() {
 			finished_ = true;
 		}
 		break;
+	}
+}
+
+void GameScene::InvertBlockPositionsWithCentering() {
+	uint32_t numBlokVirtical = mapChipField_->GetNumBlockVirtical();     // 縦
+	uint32_t numBlokHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
+
+	// マップ全体の中心を計算
+	Vector3 centerPosition = mapChipField_->GetMapChipPostionByIndex(numBlokHorizontal / 2, numBlokVirtical / 2);
+
+	// ブロックを反転させる
+	for (uint32_t i = 0; i < numBlokVirtical; ++i) {
+		for (uint32_t j = 0; j < numBlokHorizontal; ++j) {
+			if (worldTransformBlocks_[i][j]) {
+				// 反転後の新しい位置を計算
+				Vector3 newPosition = mapChipField_->GetMapChipPostionByIndex(numBlokHorizontal - 1 - j, numBlokVirtical - 1 - i);
+
+				// 位置がマップ中心から大きくずれないように調整
+				newPosition -= (centerPosition - mapChipField_->GetMapChipPostionByIndex(j, i));
+
+				// ブロックの位置を更新
+				worldTransformBlocks_[i][j]->translation_ = newPosition;
+				worldTransformBlocks_[i][j]->matWorld_ = MakeAffineMatrix(worldTransformBlocks_[i][j]->scale_, worldTransformBlocks_[i][j]->rotation_, worldTransformBlocks_[i][j]->translation_);
+				worldTransformBlocks_[i][j]->TransferMatrix();
+			}
+		}
 	}
 }
