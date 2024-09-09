@@ -9,7 +9,7 @@
 
 		kBlank, // 空白
 		kBlock, // ブロック
-
+		kBlock2,
 	};
 	struct MapChipData {
 
