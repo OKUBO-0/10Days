@@ -42,7 +42,7 @@ public:
 	uint32_t GetNumBlockHorizontal() { return kNumBlockHorizontal; }
 	IndexSet GetMapChipIndexSetByPosition(const Vector3& posotopn);
 	Rect GetRectByIndex(uint32_t xindex, uint32_t yIndex);
-
+	void SetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex, MapChipType type);  // 新しく追加
 	void InvertMap();
 
 private:
@@ -50,8 +50,8 @@ private:
 	static inline const float kBlockWidth = 1.0f;
 	static inline const float kBlockHeight = 1.0f;
 	// ブロック個数
-	static inline const uint32_t kNumBlockVirtical = 50;
-	static inline const uint32_t kNumBlockHorizontal = 100;
+	static inline const uint32_t kNumBlockVirtical = 40;
+	static inline const uint32_t kNumBlockHorizontal = 40;
 	MapChipData mapChipData_;
 	
 };

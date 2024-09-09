@@ -92,6 +92,13 @@ Rect MapChipField::GetRectByIndex(uint32_t xindex, uint32_t yIndex) {
 
 }
 
+void MapChipField::SetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex, MapChipType type) {
+	// インデックスが範囲外でないか確認
+	if (xIndex < kNumBlockHorizontal && yIndex < kNumBlockVirtical) {
+		mapChipData_.data[yIndex][xIndex] = type;
+	}
+}
+
 void MapChipField::InvertMap() {
 	// 新しいデータ構造を作成し、サイズを既存のマップチップデータと同じにする
 	std::vector<std::vector<MapChipType>> invertedData(kNumBlockVirtical, std::vector<MapChipType>(kNumBlockHorizontal));

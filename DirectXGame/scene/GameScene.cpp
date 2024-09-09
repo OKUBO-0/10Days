@@ -67,7 +67,7 @@ void GameScene::Initialize() {
 	// Player
 	player_ = new Player();
 	model_ = Model::CreateFromOBJ("player", true); // 3Dモデルの生成
-	Vector3 playerPostion = mapChipField_->GetMapChipPostionByIndex(1, 28);
+	Vector3 playerPostion = mapChipField_->GetMapChipPostionByIndex(1, 38);
 	player_->SetMapChipField(mapChipField_);
 	player_->Initialize(model_, &viewProjection_, playerPostion);
 
@@ -169,7 +169,6 @@ void GameScene::Update() {
 }
 
 void GameScene::GenerateBlokcs() {
-
 	// 要素数
 	uint32_t numBlokVirtical = mapChipField_->GetNumBlockVirtical();     // 縦
 	uint32_t numBlokHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
@@ -178,19 +177,37 @@ void GameScene::GenerateBlokcs() {
 	// 列数を設定
 	worldTransformBlocks_.resize(numBlokVirtical);
 	for (uint32_t i = 0; i < numBlokVirtical; ++i) {
-
 		worldTransformBlocks_[i].resize(numBlokHorizontal);
 	}
+
 	// キューブ生成
 	for (uint32_t i = 0; i < numBlokVirtical; ++i) {
 		for (uint32_t j = 0; j < numBlokHorizontal; ++j) {
+			// マップチップの種類を取得
+			MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(j, i);
 
-			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
-
-				WorldTransform* worldTransform = new WorldTransform();
-				worldTransform->Initialize();
-				worldTransformBlocks_[i][j] = worldTransform;
+			// 1（ブロック）の場合のみ描画
+			if (mapChipType == MapChipType::kBlock) {
+				// 既存のワールドトランスフォームがない場合は新たに生成
+				if (!worldTransformBlocks_[i][j]) {
+					WorldTransform* worldTransform = new WorldTransform();
+					worldTransform->Initialize();
+					worldTransformBlocks_[i][j] = worldTransform;
+				}
+				// ブロックの位置を設定
 				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPostionByIndex(j, i);
+				worldTransformBlocks_[i][j]->matWorld_ = MakeAffineMatrix(
+					worldTransformBlocks_[i][j]->scale_,
+					worldTransformBlocks_[i][j]->rotation_,
+					worldTransformBlocks_[i][j]->translation_);
+				worldTransformBlocks_[i][j]->TransferMatrix();
+			}
+			else {
+				// 0（空白）の場合、ワールドトランスフォームを削除（描画しない）
+				if (worldTransformBlocks_[i][j]) {
+					delete worldTransformBlocks_[i][j];
+					worldTransformBlocks_[i][j] = nullptr;
+				}
 			}
 		}
 	}
@@ -311,40 +328,56 @@ void GameScene::InvertBlockPositionsWithCentering() {
 	// 新しい反転用のデータを保持するための一時配列
 	std::vector<std::vector<WorldTransform*>> newWorldTransformBlocks(numBlokVirtical, std::vector<WorldTransform*>(numBlokHorizontal, nullptr));
 
-	// ブロックを反転させる (上下+左右反転)
+	// プレイヤーの現在の位置を取得
+	Vector3 playerPosition = player_->GetWorldPosition();
+	IndexSet playerIndexSet = mapChipField_->GetMapChipIndexSetByPosition(playerPosition);
+
+	// ブロックを反転させる (上下+左右反転) ＆ 空白とブロックの反転を行う
 	for (uint32_t i = 0; i < numBlokVirtical; ++i) {
 		for (uint32_t j = 0; j < numBlokHorizontal; ++j) {
-			if (worldTransformBlocks_[i][j]) {
-				// 反転後の新しい位置を計算 (上下+左右反転)
-				Vector3 newPosition = mapChipField_->GetMapChipPostionByIndex(numBlokHorizontal - 1 - j, numBlokVirtical - 1 - i);
+			// マップチップを取得
+			MapChipType currentChip = mapChipField_->GetMapChipTypeByIndex(j, i);
 
-				// 新しい位置のブロックデータを保存
-				newWorldTransformBlocks[numBlokVirtical - 1 - i][numBlokHorizontal - 1 - j] = worldTransformBlocks_[i][j];
-				newWorldTransformBlocks[numBlokVirtical - 1 - i][numBlokHorizontal - 1 - j]->translation_ = newPosition;
-				newWorldTransformBlocks[numBlokVirtical - 1 - i][numBlokHorizontal - 1 - j]->matWorld_ = MakeAffineMatrix(
-					newWorldTransformBlocks[numBlokVirtical - 1 - i][numBlokHorizontal - 1 - j]->scale_,
-					newWorldTransformBlocks[numBlokVirtical - 1 - i][numBlokHorizontal - 1 - j]->rotation_,
-					newWorldTransformBlocks[numBlokVirtical - 1 - i][numBlokHorizontal - 1 - j]->translation_);
-				newWorldTransformBlocks[numBlokVirtical - 1 - i][numBlokHorizontal - 1 - j]->TransferMatrix();
+			// 空白とブロックの反転
+			MapChipType invertedChip = (currentChip == MapChipType::kBlock) ? MapChipType::kBlank : MapChipType::kBlock;
+
+			// マップチップの更新
+			mapChipField_->SetMapChipTypeByIndex(j, i, invertedChip);
+
+			if (invertedChip == MapChipType::kBlock) {
+				// 反転後、ブロックが生成される場合
+				if (!worldTransformBlocks_[i][j]) {
+					WorldTransform* worldTransform = new WorldTransform();
+					worldTransform->Initialize();
+					worldTransformBlocks_[i][j] = worldTransform;
+				}
+				Vector3 newPosition = mapChipField_->GetMapChipPostionByIndex(j, i);
+				worldTransformBlocks_[i][j]->translation_ = newPosition;
+				worldTransformBlocks_[i][j]->matWorld_ = MakeAffineMatrix(
+					worldTransformBlocks_[i][j]->scale_,
+					worldTransformBlocks_[i][j]->rotation_,
+					worldTransformBlocks_[i][j]->translation_);
+				worldTransformBlocks_[i][j]->TransferMatrix();
+			}
+			else {
+				// 反転後に空白になる場合はブロックを削除
+				if (worldTransformBlocks_[i][j]) {
+					delete worldTransformBlocks_[i][j];
+					worldTransformBlocks_[i][j] = nullptr;
+				}
 			}
 		}
 	}
 
-	// 元のブロックデータを新しいデータで置き換える
-	worldTransformBlocks_ = newWorldTransformBlocks;
-
-	// プレイヤーの位置も反転させる
-	Vector3 playerPosition = player_->GetWorldPosition();
-	IndexSet playerIndexSet = mapChipField_->GetMapChipIndexSetByPosition(playerPosition);
-
-	// プレイヤーの新しい反転位置を計算 (上下+左右反転)
+	// プレイヤーの反転後の新しい位置を計算
 	uint32_t invertedX = numBlokHorizontal - 1 - playerIndexSet.xIndex;
 	uint32_t invertedY = numBlokVirtical - 1 - playerIndexSet.yIndex;
 	Vector3 newPlayerPosition = mapChipField_->GetMapChipPostionByIndex(invertedX, invertedY);
 
+	// プレイヤーが埋まらないように調整
+	newPlayerPosition.y += 1.0f;
+
 	// プレイヤーの位置を更新
 	player_->SetWorldPosition(newPlayerPosition);
 }
-
-
 
