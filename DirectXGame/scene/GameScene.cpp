@@ -308,18 +308,12 @@ void GameScene::InvertBlockPositionsWithCentering() {
 	uint32_t numBlokVirtical = mapChipField_->GetNumBlockVirtical();     // 縦
 	uint32_t numBlokHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
 
-	// マップ全体の中心を計算
-	Vector3 centerPosition = mapChipField_->GetMapChipPostionByIndex(numBlokHorizontal / 2, numBlokVirtical / 2);
-
-	// ブロックを反転させる
+	// ブロックを左右反転させる
 	for (uint32_t i = 0; i < numBlokVirtical; ++i) {
 		for (uint32_t j = 0; j < numBlokHorizontal; ++j) {
 			if (worldTransformBlocks_[i][j]) {
-				// 反転後の新しい位置を計算
+				// 反転後の新しい位置を計算 (上下反転 + 左右反転)
 				Vector3 newPosition = mapChipField_->GetMapChipPostionByIndex(numBlokHorizontal - 1 - j, numBlokVirtical - 1 - i);
-
-				// 位置がマップ中心から大きくずれないように調整
-				newPosition -= (centerPosition - mapChipField_->GetMapChipPostionByIndex(j, i));
 
 				// ブロックの位置を更新
 				worldTransformBlocks_[i][j]->translation_ = newPosition;
@@ -328,4 +322,14 @@ void GameScene::InvertBlockPositionsWithCentering() {
 			}
 		}
 	}
+
+	// プレイヤーの位置も左右反転させる
+	Vector3 playerPosition = player_->GetWorldPosition();
+	IndexSet playerIndexSet = mapChipField_->GetMapChipIndexSetByPosition(playerPosition);
+
+	// プレイヤーの新しい反転位置を計算 (左右反転のみ)
+	Vector3 newPlayerPosition = mapChipField_->GetMapChipPostionByIndex(numBlokHorizontal - 1 - playerIndexSet.xIndex, playerIndexSet.yIndex);
+
+	// プレイヤーの位置を更新
+	player_->SetWorldPosition(newPlayerPosition);
 }

@@ -403,4 +403,9 @@ void Player::OnCollision(const Enemy* enemy) {
 	isDead_ = true;
 }
 
+void Player::SetWorldPosition(const Vector3& newPosition)
+{
+	position_ = newPosition;
+}
+
 float Player::EaseOutSine(float x) { return cosf((x * std::numbers::pi_v<float>) / 2); }

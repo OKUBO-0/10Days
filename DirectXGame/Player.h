@@ -71,6 +71,9 @@ public:
 
 	bool GetIsDead_() const { return isDead_; }
 
+	// ワールド位置を設定するメソッドを追加
+	void SetWorldPosition(const Vector3& newPosition);
+
 private:
 	WorldTransform worldTransform_;            // ワールド変換データ
 	Model* model_ = nullptr;                   // モデル
@@ -101,4 +104,6 @@ private:
 
 	//死んだ
 	bool isDead_ = false;
+
+	Vector3 position_; // プレイヤーの現在位置
 };

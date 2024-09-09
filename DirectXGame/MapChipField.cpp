@@ -22,7 +22,7 @@ void MapChipField::ResetMapChipData() {
 }
 
 void MapChipField::LoadMapChipCsv(const std::string& filePath) {
-	// マップチップデータをリセット//
+	// マップチップデータをリセット
 	ResetMapChipData();
 
 	// ファイルを開く
@@ -93,26 +93,17 @@ Rect MapChipField::GetRectByIndex(uint32_t xindex, uint32_t yIndex) {
 }
 
 void MapChipField::InvertMap() {
-	// 垂直反転 & 0/1の入れ替え
-	for (uint32_t y = 0; y < kNumBlockVirtical / 2; ++y) {
-		// 上下の行を入れ替えながら、0と1も入れ替える
-		for (uint32_t x = 0; x < kNumBlockHorizontal; ++x) {
-			std::swap(mapChipData_.data[y][x], mapChipData_.data[kNumBlockVirtical - 1 - y][x]);
+	// 新しいデータ構造を作成し、サイズを既存のマップチップデータと同じにする
+	std::vector<std::vector<MapChipType>> invertedData(kNumBlockVirtical, std::vector<MapChipType>(kNumBlockHorizontal));
 
-			// それぞれの値を入れ替え
-			mapChipData_.data[y][x] = (mapChipData_.data[y][x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
-			mapChipData_.data[kNumBlockVirtical - 1 - y][x] = (mapChipData_.data[kNumBlockVirtical - 1 - y][x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
-		}
-	}
-
-	// 水平反転 & 0/1の入れ替え
+	// 上下左右の反転
 	for (uint32_t y = 0; y < kNumBlockVirtical; ++y) {
-		for (uint32_t x = 0; x < kNumBlockHorizontal / 2; ++x) {
-			std::swap(mapChipData_.data[y][x], mapChipData_.data[y][kNumBlockHorizontal - 1 - x]);
-
-			// それぞれの値を入れ替え
-			mapChipData_.data[y][x] = (mapChipData_.data[y][x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
-			mapChipData_.data[y][kNumBlockHorizontal - 1 - x] = (mapChipData_.data[y][kNumBlockHorizontal - 1 - x] == MapChipType::kBlank) ? MapChipType::kBlock : MapChipType::kBlank;
+		for (uint32_t x = 0; x < kNumBlockHorizontal; ++x) {
+			// 上下左右を反転させた座標にデータをコピー
+			invertedData[kNumBlockVirtical - 1 - y][kNumBlockHorizontal - 1 - x] = mapChipData_.data[y][x];
 		}
 	}
+
+	// 反転したデータで元のデータを置き換える
+	mapChipData_.data = invertedData;
 }
