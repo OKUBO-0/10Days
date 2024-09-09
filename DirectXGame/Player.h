@@ -106,4 +106,5 @@ private:
 	bool isDead_ = false;
 
 	Vector3 position_; // プレイヤーの現在位置
+
 };

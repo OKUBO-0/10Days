@@ -384,7 +384,8 @@ Vector3 Player::GetWorldPosition() {
 	worldPos.x = worldTransform_.matWorld_.m[3][0];
 	worldPos.y = worldTransform_.matWorld_.m[3][1];
 	worldPos.z = worldTransform_.matWorld_.m[3][2];
-	return worldPos;
+
+	return worldTransform_.translation_;
 }
 
 AABB Player::GetAABB() {
@@ -406,6 +407,8 @@ void Player::OnCollision(const Enemy* enemy) {
 void Player::SetWorldPosition(const Vector3& newPosition)
 {
 	position_ = newPosition;
+	worldTransform_.translation_ = newPosition;  // ワールドトランスフォームの位置も更新
+	worldTransform_.UpdateMatrix();  // 行列を更新して反映
 }
 
 float Player::EaseOutSine(float x) { return cosf((x * std::numbers::pi_v<float>) / 2); }
