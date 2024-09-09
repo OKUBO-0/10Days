@@ -75,13 +75,13 @@ void GameScene::Initialize() {
 	enemyModel_ = Model::CreateFromOBJ("enemy", true);
 	for (int32_t i = 0; i < enemynumber; i++) {
 		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapChipPostionByIndex(17 - i - i - i, 18 - i -i);
+		Vector3 enemyPosition = mapChipField_->GetMapChipPostionByIndex(17 - i - i - i, 18 - i - i);
 		newEnemy->Initialize(enemyModel_, &viewProjection_, enemyPosition);
 		enemies_.push_back(newEnemy);
 	}
 
 	// CameraController
-	CameraController::Rect cameraArea = {0.0f, 100 - 12.0f, 6.0f, 6.0f};
+	CameraController::Rect cameraArea = { 0.0f, 100 - 12.0f, 6.0f, 6.0f };
 	cameraController_ = new CameraController();
 	cameraController_->Initialize();
 	cameraController_->SetTarget(player_);
@@ -120,11 +120,11 @@ void GameScene::Update() {
 		cameraController_->Update();
 	}
 
-	for (Enemy* enemy : enemies_) {
+	/*for (Enemy* enemy : enemies_) {
 		if (!nullptr) {
 			enemy->Update();
 		}
-	}
+	}*/
 
 	// Block
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -153,7 +153,8 @@ void GameScene::Update() {
 		// ビュープロジェクション行列
 		viewProjection_.TransferMatrix();
 
-	} else {
+	}
+	else {
 		viewProjection_.matView = cameraController_->GetViewProjection().matView;
 		viewProjection_.matProjection = cameraController_->GetViewProjection().matProjection;
 		// ビュープロジェクション行列の更新と転送
@@ -220,11 +221,11 @@ void GameScene::Draw() {
 		player_->Draw();
 	}
 
-	for (Enemy* enemy : enemies_) {
+	/*for (Enemy* enemy : enemies_) {
 		if (!nullptr) {
 			enemy->Draw();
 		}
-	}
+	}*/
 
 	if (player_->GetIsDead_() == true) {
 		deathParticles_->Draw();

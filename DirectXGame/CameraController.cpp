@@ -1,36 +1,59 @@
-#define NOMINMAX
+#include <algorithm>
 #include "CameraController.h"
 #include "Player.h"
 
-void CameraController::Initialize() { viewProjection_.Initialize(); }
-
-void CameraController::Update() {
-	// 追尾対象のワールドトランスフォームを参照
-	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
-	// 追従対象とオフセットからカメラの座標系を計算
-	const Vector3 targetVelocity = target_->GetVelocity();
-	targetCameraPosition = targetWorldTransform.translation_ + targetOffset_ + targetVelocity * kVelocityBias;
-	viewProjection_.translation_ = Lerp(viewProjection_.translation_, targetCameraPosition, kInterpolationRate);
-
-	viewProjection_.translation_.x = std::max(viewProjection_.translation_.x, movebleArea_.left);
-	viewProjection_.translation_.x = std::min(viewProjection_.translation_.x, movebleArea_.right);
-	viewProjection_.translation_.y = std::max(viewProjection_.translation_.y, movebleArea_.bottom);
-	viewProjection_.translation_.y = std::min(viewProjection_.translation_.y, movebleArea_.top);
-
-	viewProjection_.translation_.x = std::max(viewProjection_.translation_.x, targetWorldTransform.translation_.x + mergeArea.left);
-	viewProjection_.translation_.x = std::min(viewProjection_.translation_.x, targetWorldTransform.translation_.x + mergeArea.right);
-	viewProjection_.translation_.y = std::max(viewProjection_.translation_.y, targetWorldTransform.translation_.y + mergeArea.bottom);
-	viewProjection_.translation_.y = std::min(viewProjection_.translation_.y, targetWorldTransform.translation_.y + mergeArea.top);
-
-	// 行列を更新する
-	viewProjection_.UpdateMatrix();
+// 線形補間関数
+template <typename T>
+T Lerp(const T& a, const T& b, float t) {
+    return a * (1 - t) + b * t;
 }
 
-void CameraController::Draw() {}
+void CameraController::Initialize()
+{
+    viewProjection_.Initialize();
+}
 
-void CameraController::Reset() {
-	// 追尾対象のワールドトランスフォームを参照
-	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
-	// 追従対象とオフセットからカメラの座標系を計算
-	viewProjection_.translation_ = targetWorldTransform.translation_ + targetOffset_;
+void CameraController::Update() {
+    // 追従対象のワールドトランスフォームを取得
+    const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
+    const Vector3& targetVelocity = target_->GetVelocity();
+
+    // 追従対象の座標、移動速度とオフセットで目標座標を計算
+    dest_.x = targetWorldTransform.translation_.x + targetOffset_.x + targetVelocity.x * kVelocityBias;
+    dest_.y = targetWorldTransform.translation_.y + targetOffset_.y + targetVelocity.y * kVelocityBias;
+    dest_.z = targetWorldTransform.translation_.z + targetOffset_.z + targetVelocity.z * kVelocityBias;
+
+    // X軸方向の補間率を設定
+    const float kHorizontalInterpolationRate = kInterpolationRate * 0.5f; // 例: 通常の半分の速度
+
+    // Y軸方向の補間率を設定
+    const float kVerticalInterpolationRate = kInterpolationRate * 0.3f; // 例: 通常の30%の速度
+
+    // 座標補間によりゆったり追従（X軸とY軸で異なる速度）
+    viewProjection_.translation_.x = Lerp(viewProjection_.translation_.x, dest_.x, kHorizontalInterpolationRate);
+    viewProjection_.translation_.y = Lerp(viewProjection_.translation_.y, dest_.y, kVerticalInterpolationRate);
+    viewProjection_.translation_.z = Lerp(viewProjection_.translation_.z, dest_.z, kInterpolationRate);
+
+    // 追従対象が画面外に出ないように補正（X軸のみ）
+    viewProjection_.translation_.x = std::clamp(viewProjection_.translation_.x, targetWorldTransform.translation_.x + margin.left, targetWorldTransform.translation_.x + margin.right);
+
+    // 移動範囲制限（X軸のみ）
+    viewProjection_.translation_.x = std::clamp(viewProjection_.translation_.x, movableArea_.left, movableArea_.right);
+
+    // ビュープロジェクション行列の更新
+    viewProjection_.UpdateMatrix();
+}
+
+void CameraController::Reset()
+{
+    const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
+
+    viewProjection_.translation_.x = targetWorldTransform.translation_.x + targetOffset_.x;
+    viewProjection_.translation_.y = targetWorldTransform.translation_.y + targetOffset_.y;
+    viewProjection_.translation_.z = targetWorldTransform.translation_.z + targetOffset_.z;
+}
+
+ViewProjection CameraController::GetViewPosition()
+{
+    return ViewProjection();
 }
