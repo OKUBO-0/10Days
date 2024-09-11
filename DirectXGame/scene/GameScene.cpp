@@ -150,7 +150,7 @@ void GameScene::Update() {
 	if (input_->TriggerKey(DIK_DOWN)) {
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
-
+		cameraController_->StartRotation();  // カメラの回転を開始
 	}
 
 

@@ -34,6 +34,20 @@ struct Quaternion {
         );
     }
 
+    // クォータニオンとベクトルの積 (ベクトルを回転)
+    Vector3 operator*(const Vector3& v) const {
+        // クォータニオンとベクトルを掛けて、ベクトルを回転させる
+        Quaternion qv(0, v.x, v.y, v.z);
+        Quaternion conj = this->Conjugate();
+        Quaternion result = (*this) * qv * conj;
+        return Vector3(result.x, result.y, result.z);
+    }
+
+    // クォータニオンの共役を返す（逆回転用）
+    Quaternion Conjugate() const {
+        return Quaternion(w, -x, -y, -z);
+    }
+
     // クォータニオンを回転行列に変換
     Matrix4x4 ToMatrix() const {
         Matrix4x4 mat;
