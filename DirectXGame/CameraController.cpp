@@ -95,14 +95,11 @@ void CameraController::UpdateRotation() {
         viewProjection_.translation_.x = target_->GetWorldPosition().x + std::cos(currentAngle) * radius;
         viewProjection_.translation_.z = target_->GetWorldPosition().z + std::sin(currentAngle) * radius;
 
-        // X軸周りの180度回転行列を使用して、カメラの傾きを回転させる
-        Matrix4x4 rotationMatrix;
-        rotationMatrix.m[0][0] = 1.0f;  rotationMatrix.m[0][1] = 0.0f;  rotationMatrix.m[0][2] = 0.0f;  rotationMatrix.m[0][3] = 0.0f;
-        rotationMatrix.m[1][0] = 0.0f;  rotationMatrix.m[1][1] = -1.0f; rotationMatrix.m[1][2] = 0.0f;  rotationMatrix.m[1][3] = 0.0f;
-        rotationMatrix.m[2][0] = 0.0f;  rotationMatrix.m[2][1] = 0.0f;  rotationMatrix.m[2][2] = -1.0f; rotationMatrix.m[2][3] = 0.0f;
-        rotationMatrix.m[3][0] = 0.0f;  rotationMatrix.m[3][1] = 0.0f;  rotationMatrix.m[3][2] = 0.0f;  rotationMatrix.m[3][3] = 1.0f;
+        // カメラの傾きを180度回転 (Z軸を基準に回転)
+        Vector3 zAxis = { 0.0f, 0.0f, 1.0f };
+        Quaternion rotationQuat = Quaternion::FromAxisAngle(zAxis, PI); // Z軸周りで180度回転
 
-        // 行列とベクトルの積を使ってカメラの回転を適用
-        viewProjection_.rotation_ = MultiplyMatrixVector(rotationMatrix, viewProjection_.rotation_);
+        // カメラの回転行列に適用
+        viewProjection_.rotation_ = rotationQuat * viewProjection_.rotation_; 
     }
 }
