@@ -4,7 +4,6 @@
 #include "CameraController.h"
 #include "DebugCamera.h"
 #include "DirectXCommon.h"
-#include "Enemy.h"
 #include "Input.h"
 #include "MapChipField.h"
 #include "Model.h"
@@ -59,17 +58,12 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
-	//当たり判定のまとまり
-	void CheckAllCollisions();
 
 	//フェーズ切り替え
 	void ChangePhase();
 
 	// ブロックの反転とプレイヤーの位置修正を行う関数
 	void InvertBlockPositionsWithCentering();
-
-	// プレイヤーの反転と位置修正を行う関数の宣言
-	void InvertPlayerAndFixPosition();
 
 
 
@@ -118,11 +112,6 @@ private: // メンバ変数
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
 
-	// Enemy
-	std::list<Enemy*> enemies_;   // 敵たち
-	Model* enemyModel_ = nullptr; // 3Dモデル
-	int32_t enemynumber = 3;
-	// Enemy* enemy_ = nullptr;       // 敵
 
 	//死エフェクト
 	DeathParticles* deathParticles_ = nullptr;
