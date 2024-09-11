@@ -348,10 +348,13 @@ void GameScene::InvertBlockPositionsWithCentering() {
 			// マップチップを取得
 			MapChipType currentChip = mapChipField_->GetMapChipTypeByIndex(j, i);
 
-			// 空白とブロックの反転
-			MapChipType invertedChip = (currentChip == MapChipType::kBlock) ? MapChipType::kBlank : MapChipType::kBlock;
+			// block2 の場合は反転しない
+            if (currentChip == MapChipType::kBlock2) {
+                continue;
+            }
 
-			
+            // 空白とブロックの反転
+            MapChipType invertedChip = (currentChip == MapChipType::kBlock) ? MapChipType::kBlank : MapChipType::kBlock;
 
 
 			// マップチップの更新
