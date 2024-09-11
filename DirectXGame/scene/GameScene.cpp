@@ -49,6 +49,7 @@ void GameScene::Initialize() {
 
 	// Block
 	blockModel_ = Model::CreateFromOBJ("block", true);
+	blockModel2_ = Model::CreateFromOBJ("block2", true);
 
 	// DebugCamera
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -178,7 +179,7 @@ void GameScene::GenerateBlokcs() {
 			MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(j, i);
 
 			// 1（ブロック）の場合のみ描画
-			if (mapChipType == MapChipType::kBlock) {
+			if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kBlock2) {
 				// 既存のワールドトランスフォームがない場合は新たに生成
 				if (!worldTransformBlocks_[i][j]) {
 					WorldTransform* worldTransform = new WorldTransform();
@@ -246,10 +247,20 @@ void GameScene::Draw() {
 	}
 
 	skydome_->Draw();
+
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			if (!worldTransformBlock)
 				continue;
+
+			uint32_t xIndex = static_cast<uint32_t>(worldTransformBlock->translation_.x);
+			uint32_t yIndex = static_cast<uint32_t>(worldTransformBlock->translation_.y);
+			MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(xIndex, yIndex);
+
+			if (mapChipType == MapChipType::kBlock2) {
+				// block2の場合は描画する
+				blockModel2_->Draw(*worldTransformBlock, viewProjection_);
+			}
 			blockModel_->Draw(*worldTransformBlock, viewProjection_);
 		}
 	}

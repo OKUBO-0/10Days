@@ -229,12 +229,18 @@ void Player::CollisionMapInfoTop(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock) {
 		hit = true;
 	}
+
+	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
+	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType == MapChipType::kBlock2) {
+		hit = true;
+	}
 	// 右点の判定
 	//   左点の判定
 
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock2) {
 		hit = true;
 	}
 
@@ -251,6 +257,7 @@ void Player::CollisionMapInfoTop(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock2) {
 		hit = true;
 	}
+
 
 	// hit
 	if (hit) {
@@ -338,7 +345,6 @@ void Player::CollisionMapInfoRight(CollisionMapInfo& info) {
 	}
 
 	// 右下点の判定
-
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom] + Vector3(+kCollisionsmallnumber, 0, 0));
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kBlock) {
@@ -352,13 +358,11 @@ void Player::CollisionMapInfoRight(CollisionMapInfo& info) {
 	}
 
 	// 右下点の判定
-
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom] + Vector3(+kCollisionsmallnumber, 0, 0));
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kBlock2) {
 		hit = true;
 	}
-
 	// hit
 	if (hit) {
 		// めり込みを排除する方向に移動量を設定する
@@ -394,7 +398,6 @@ void Player::CollisionMapInfoLeft(CollisionMapInfo& info) {
 	}
 
 	// hidari下点の判定
-
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom] + Vector3(-kCollisionsmallnumber, 0, 0));
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kBlock) {
@@ -408,13 +411,11 @@ void Player::CollisionMapInfoLeft(CollisionMapInfo& info) {
 	}
 
 	// hidari下点の判定
-
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom] + Vector3(-kCollisionsmallnumber, 0, 0));
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kBlock2) {
 		hit = true;
 	}
-
 	// hit
 	if (hit) {
 		// めり込みを排除する方向に移動量を設定する
