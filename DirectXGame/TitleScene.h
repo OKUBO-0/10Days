@@ -40,6 +40,9 @@ private:
 
 	// モデル
 	Model* model_ = nullptr;
+	Model* stage1model_ = nullptr;
+	Model* stage2model_ = nullptr;
+	Model* stage3model_ = nullptr;
 
 	bool finished_ = false;
 

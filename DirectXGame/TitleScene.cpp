@@ -4,6 +4,9 @@ TitleScene::TitleScene() {}
 
 TitleScene::~TitleScene() {
 	delete model_;
+	delete stage1model_;
+	delete stage2model_;
+	delete stage3model_;
 	delete skydome_;
 }
 
@@ -13,6 +16,9 @@ void TitleScene::Initialize() {
 	audio_ = Audio::GetInstance();
 
 	model_ = Model::CreateFromOBJ("title", true);
+	stage1model_ = Model::CreateFromOBJ("stage1", true);
+	stage2model_ = Model::CreateFromOBJ("stage2", true);
+	stage3model_ = Model::CreateFromOBJ("stage3", true);
 	worldTransform_.Initialize();
 	viewProjection_.Initialize();
 
@@ -34,23 +40,44 @@ void TitleScene::Update() {
 	ImGui::End();
 
 	// マウスクリック判定（前の例と同じ処理）
-	int clickAreaX = 400;
-	int clickAreaY = 300;
+	int clickArea1X = 410;
+	int clickArea1Y = 490;
+
+	int clickArea2X = 590;
+	int clickArea2Y = 490;
+
+	int clickArea3X = 770;
+	int clickArea3Y = 490;
+
 	int clickAreaWidth = 100;
 	int clickAreaHeight = 100;
 
-	if (mousePos.x >= clickAreaX && mousePos.x <= clickAreaX + clickAreaWidth &&
-		mousePos.y >= clickAreaY && mousePos.y <= clickAreaY + clickAreaHeight) {
+	if (mousePos.x >= clickArea1X && mousePos.x <= clickArea1X + clickAreaWidth &&
+		mousePos.y >= clickArea1Y && mousePos.y <= clickArea1Y + clickAreaHeight) {
 		if (input_->IsTriggerMouse(0)) {
 			finished_ = true;
 		}
 	}
 
-	if (Input::GetInstance()->PushKey(DIK_SPACE)) {
-
-		finished_ = true;
-
+	if (mousePos.x >= clickArea2X && mousePos.x <= clickArea2X + clickAreaWidth &&
+		mousePos.y >= clickArea2Y && mousePos.y <= clickArea2Y + clickAreaHeight) {
+		if (input_->IsTriggerMouse(0)) {
+			finished_ = true;
+		}
 	}
+
+	if (mousePos.x >= clickArea3X && mousePos.x <= clickArea3X + clickAreaWidth &&
+		mousePos.y >= clickArea3Y && mousePos.y <= clickArea3Y + clickAreaHeight) {
+		if (input_->IsTriggerMouse(0)) {
+			finished_ = true;
+		}
+	}
+
+	//if (Input::GetInstance()->PushKey(DIK_SPACE)) {
+
+	//	finished_ = true;
+
+	//}
 
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 	// 定数バッファに転送する
@@ -84,6 +111,9 @@ void TitleScene::Draw() {
 
 
 	model_->Draw(worldTransform_, viewProjection_);
+	stage1model_->Draw(worldTransform_, viewProjection_);
+	stage2model_->Draw(worldTransform_, viewProjection_);
+	stage3model_->Draw(worldTransform_, viewProjection_);
 
 	skydome_->Draw();
 
