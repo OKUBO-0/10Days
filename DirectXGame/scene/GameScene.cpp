@@ -67,7 +67,7 @@ void GameScene::Initialize() {
 	// Player
 	player_ = new Player();
 	model_ = Model::CreateFromOBJ("player", true); // 3Dモデルの生成
-	Vector3 playerPostion = mapChipField_->GetMapChipPostionByIndex(1, 38);
+	Vector3 playerPostion = mapChipField_->GetMapChipPostionByIndex(1, 34);
 	player_->SetMapChipField(mapChipField_);
 	player_->Initialize(model_, &viewProjection_, playerPostion);
 
@@ -75,13 +75,13 @@ void GameScene::Initialize() {
 	enemyModel_ = Model::CreateFromOBJ("enemy", true);
 	for (int32_t i = 0; i < enemynumber; i++) {
 		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapChipPostionByIndex(17 - i - i - i, 18 - i -i);
+		Vector3 enemyPosition = mapChipField_->GetMapChipPostionByIndex(17 - i - i - i, 18 - i - i);
 		newEnemy->Initialize(enemyModel_, &viewProjection_, enemyPosition);
 		enemies_.push_back(newEnemy);
 	}
 
 	// CameraController
-	CameraController::Rect cameraArea = {0.0f, 100 - 12.0f, 6.0f, 6.0f};
+	CameraController::Rect cameraArea = { 0.0f, 100 - 12.0f, 6.0f, 6.0f };
 	cameraController_ = new CameraController();
 	cameraController_->Initialize();
 	cameraController_->SetTarget(player_);
@@ -153,7 +153,8 @@ void GameScene::Update() {
 		// ビュープロジェクション行列
 		viewProjection_.TransferMatrix();
 
-	} else {
+	}
+	else {
 		viewProjection_.matView = cameraController_->GetViewProjection().matView;
 		viewProjection_.matProjection = cameraController_->GetViewProjection().matProjection;
 		// ビュープロジェクション行列の更新と転送
@@ -165,7 +166,11 @@ void GameScene::Update() {
 	if (input_->TriggerKey(DIK_DOWN)) {
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
+
 	}
+	
+
+
 }
 
 void GameScene::GenerateBlokcs() {
@@ -328,56 +333,63 @@ void GameScene::InvertBlockPositionsWithCentering() {
 	// 新しい反転用のデータを保持するための一時配列
 	std::vector<std::vector<WorldTransform*>> newWorldTransformBlocks(numBlokVirtical, std::vector<WorldTransform*>(numBlokHorizontal, nullptr));
 
-	// プレイヤーの現在の位置を取得
-	Vector3 playerPosition = player_->GetWorldPosition();
-	IndexSet playerIndexSet = mapChipField_->GetMapChipIndexSetByPosition(playerPosition);
-
-	// ブロックを反転させる (上下+左右反転) ＆ 空白とブロックの反転を行う
+	// 180度回転と空白とブロックの反転を行う
 	for (uint32_t i = 0; i < numBlokVirtical; ++i) {
 		for (uint32_t j = 0; j < numBlokHorizontal; ++j) {
-			// マップチップを取得
-			MapChipType currentChip = mapChipField_->GetMapChipTypeByIndex(j, i);
+			uint32_t invertedI = numBlokVirtical - 1 - i;
+			uint32_t invertedJ = numBlokHorizontal - 1 - j;
 
-			// 空白とブロックの反転
+			MapChipType currentChip = mapChipField_->GetMapChipTypeByIndex(j, i);
 			MapChipType invertedChip = (currentChip == MapChipType::kBlock) ? MapChipType::kBlank : MapChipType::kBlock;
 
-			// マップチップの更新
-			mapChipField_->SetMapChipTypeByIndex(j, i, invertedChip);
+			mapChipField_->SetMapChipTypeByIndex(invertedJ, invertedI, invertedChip);
 
 			if (invertedChip == MapChipType::kBlock) {
-				// 反転後、ブロックが生成される場合
-				if (!worldTransformBlocks_[i][j]) {
+				if (!worldTransformBlocks_[invertedI][invertedJ]) {
 					WorldTransform* worldTransform = new WorldTransform();
 					worldTransform->Initialize();
-					worldTransformBlocks_[i][j] = worldTransform;
+					worldTransformBlocks_[invertedI][invertedJ] = worldTransform;
 				}
-				Vector3 newPosition = mapChipField_->GetMapChipPostionByIndex(j, i);
-				worldTransformBlocks_[i][j]->translation_ = newPosition;
-				worldTransformBlocks_[i][j]->matWorld_ = MakeAffineMatrix(
-					worldTransformBlocks_[i][j]->scale_,
-					worldTransformBlocks_[i][j]->rotation_,
-					worldTransformBlocks_[i][j]->translation_);
-				worldTransformBlocks_[i][j]->TransferMatrix();
+				Vector3 newPosition = mapChipField_->GetMapChipPostionByIndex(invertedJ, invertedI);
+				worldTransformBlocks_[invertedI][invertedJ]->translation_ = newPosition;
+				worldTransformBlocks_[invertedI][invertedJ]->matWorld_ = MakeAffineMatrix(
+					worldTransformBlocks_[invertedI][invertedJ]->scale_,
+					worldTransformBlocks_[invertedI][invertedJ]->rotation_,
+					worldTransformBlocks_[invertedI][invertedJ]->translation_);
+				worldTransformBlocks_[invertedI][invertedJ]->TransferMatrix();
 			}
 			else {
-				// 反転後に空白になる場合はブロックを削除
-				if (worldTransformBlocks_[i][j]) {
-					delete worldTransformBlocks_[i][j];
-					worldTransformBlocks_[i][j] = nullptr;
+				if (worldTransformBlocks_[invertedI][invertedJ]) {
+					delete worldTransformBlocks_[invertedI][invertedJ];
+					worldTransformBlocks_[invertedI][invertedJ] = nullptr;
 				}
 			}
 		}
 	}
 
-	// プレイヤーの反転後の新しい位置を計算
-	uint32_t invertedX = numBlokHorizontal - 1 - playerIndexSet.xIndex;
-	uint32_t invertedY = numBlokVirtical - 1 - playerIndexSet.yIndex;
-	Vector3 newPlayerPosition = mapChipField_->GetMapChipPostionByIndex(invertedX, invertedY);
+	// プレイヤーの位置を保持
+	Vector3 playerPositionBeforeRotation = player_->GetWorldPosition();
 
-	// プレイヤーが埋まらないように調整
-	newPlayerPosition.y += 1.0f;
+	// プレイヤーを逆さまにするためにX軸方向に180度回転
+	Vector3 xAxis = Vector3(1.0f, 0.0f, 0.0f);
+	float angleRad = 3.14159f; // 180度
+	Quaternion invertedRotation = Quaternion::FromAxisAngle(xAxis, angleRad);
+	player_->SetRotation(invertedRotation);
 
-	// プレイヤーの位置を更新
+	// プレイヤーの位置を回転前の位置に戻す
+	player_->SetWorldPosition(playerPositionBeforeRotation);
+
+	// 重力の反転
+	// kGravityAcclerationの符号を反転して重力を反転する
+	Player::kGravityAccleration = -Player::kGravityAccleration;
+
+	// プレイヤーがブロックにめり込まないようにY軸方向の調整（ここは必要に応じて使用）
+	Vector3 newPlayerPosition = player_->GetWorldPosition();
+	newPlayerPosition.y += -1.0f; // めり込みが発生したらこの行を調整
+
+
+
+	// プレイヤーの位置を再更新
 	player_->SetWorldPosition(newPlayerPosition);
 }
 
