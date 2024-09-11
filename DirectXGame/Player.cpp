@@ -3,6 +3,9 @@
 #include "MapChipField.h"
 #include <DebugText.h>
 
+float Player::kGravityAccleration = 0.05f;  // 静的メンバー変数の初期化
+
+
 void Player::Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position) {
 	assert(model);
 	model_ = model;
@@ -38,30 +41,23 @@ void Player::Update() {
 void Player::Draw() { model_->Draw(worldTransform_, *viewProjection_); }
 
 void Player::PrayerMove() {
-
 	if (onGround_) {
 		// 移動入力
-		// 左右移動操作
 		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
 			// 左右加速
 			Vector3 accceleration = {};
 			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-
 				if (velocity_.x < 0.0f) {
 					velocity_.x *= (1.0f - kAttenuation);
 				}
-
 				if (lrDirection_ != LRDirecion::kright) {
 					lrDirection_ = LRDirecion::kright;
 					turnFirstRotationY_ = worldTransform_.rotation_.y;
 					turnTimer_ = kLimitRunSpeed;
 				}
-
-				accceleration.x += kAccleration;
-
+				accceleration.x += kAccleration * 2.0f;  // 移動速度を上げるための加速度を増やす
 			}
 			else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-
 				if (velocity_.x > 0.0f) {
 					velocity_.x *= (1.0f - kAttenuation);
 				}
@@ -70,27 +66,35 @@ void Player::PrayerMove() {
 					turnFirstRotationY_ = worldTransform_.rotation_.y;
 					turnTimer_ = kLimitRunSpeed;
 				}
-
-				accceleration.x -= kAccleration;
+				accceleration.x -= kAccleration * 2.0f;  // 移動速度を上げるための加速度を増やす
 			}
+
 			velocity_.x += accceleration.x;
 			velocity_.y += accceleration.y;
 			velocity_.z += accceleration.z;
 
-			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+			// 最大速度を制限
+			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed * 1.5f, kLimitRunSpeed * 1.5f);
 
 		}
 		else {
-
 			velocity_.x *= (1.0f - kAttenuation);
 			velocity_.y *= (1.0f - kAttenuation);
 			velocity_.z *= (1.0f - kAttenuation);
 		}
 
+		// ジャンプ処理（ジャンプの威力を半分に設定）
 		if (Input::GetInstance()->PushKey(DIK_UP)) {
-
 			velocity_.x += 0;
-			velocity_.y += kJampAcceleration;
+
+			// 重力が反転している場合、下にジャンプ
+			if (Player::kGravityAccleration < 0.0f) {
+				velocity_.y -= kJampAcceleration * 0.5f;  // ジャンプ威力を半分に
+			}
+			else {
+				velocity_.y += kJampAcceleration * 0.5f;  // ジャンプ威力を半分に
+			}
+
 			velocity_.z += 0;
 		}
 
@@ -98,13 +102,15 @@ void Player::PrayerMove() {
 	else {
 		// 落下速度
 		velocity_.x += 0;
-		velocity_.y += -kGravityAccleration;
+		velocity_.y += -kGravityAccleration;  // 重力に応じて落下
 		velocity_.z += 0;
-		// 落下速度制限
 
+		// 落下速度制限
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
 }
+
+
 
 void Player::PrayerTurn() {
 	if (turnTimer_ > 0.0f) {
@@ -154,60 +160,42 @@ void Player::PlayerCollisionMove(const CollisionMapInfo& info) {
 
 // 天井当たった？
 void Player::CeilingCollisionMove(const CollisionMapInfo& info) {
-
+	// 天井に当たっているかどうかの判定
 	if (info.ceiling) {
-
-		DebugText::GetInstance()->ConsolePrintf("hit ceiling\n");
+		DebugText::GetInstance()->ConsolePrintf("hit ceiling as ground\n");
 		velocity_.y = 0.0f;
+
+		// 天井を地面として扱う（反転時）
+		if (Player::kGravityAccleration < 0.0f) {
+			onGround_ = true;  // 逆さまのとき、天井をonGroundとして扱う
+		}
 	}
 }
 
 void Player::OnGroundSwitching(const CollisionMapInfo& info) {
-
-	if (onGround_) {
-		if (velocity_.y > 0.0f) {
-
-			onGround_ = false;
-
-		}
-		else {
-			// 移動後4つの計算
-			std::array<Vector3, kNumCorner> positionsNew;
-			for (uint32_t i = 0; i < positionsNew.size(); ++i) {
-				positionsNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
-			}
-			MapChipType mapChipType;
-			// 真下の当たり判定
-			bool hit = false;
-
-			// 左点の判定
-			IndexSet indexSet;
-			indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom] + Vector3(0, -kCollisionsmallnumber, 0));
-			mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-			if (mapChipType == MapChipType::kBlock) {
-				hit = true;
-			}
-			// 右点の判定
-			indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom] + Vector3(0, -kCollisionsmallnumber, 0));
-			mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-			if (mapChipType == MapChipType::kBlock) {
-				hit = true;
-			}
-
-			if (!hit) {
-
-				onGround_ = false;
-			}
-		}
-
-	}
-	else {
-
+	// 通常の重力状態（地面に着地した場合）
+	if (Player::kGravityAccleration > 0.0f) {
+		// プレイヤーが地面に着いているか判定
 		if (info.landing) {
-			DebugText::GetInstance()->ConsolePrintf("hit landing\n");
+			DebugText::GetInstance()->ConsolePrintf("hit ground\n");
 			velocity_.x *= (1.0f - kAttenuationLanding);
 			velocity_.y = 0.0f;
 			onGround_ = true;
+		}
+		else {
+			onGround_ = false;
+		}
+	}
+	else {
+		// 逆さまの重力状態（天井にぶつかった場合）
+		if (info.ceiling) {
+			DebugText::GetInstance()->ConsolePrintf("hit ceiling as ground\n");
+			velocity_.x *= (1.0f - kAttenuationLanding);
+			velocity_.y = 0.0f;
+			onGround_ = true;  // 逆さまの場合、天井をonGroundとして扱う
+		}
+		else {
+			onGround_ = false;
 		}
 	}
 }
@@ -414,6 +402,19 @@ void Player::SetWorldPosition(const Vector3& newPosition)
 	position_ = newPosition;
 	worldTransform_.translation_ = newPosition;  // ワールドトランスフォームの位置も更新
 	worldTransform_.UpdateMatrix();  // 行列を更新して反映
+}
+
+// プレイヤーの回転を設定するメソッド
+void Player::SetRotation(const Quaternion& rotation) {
+	rotation_ = rotation;
+	worldTransform_.rotation_ = QuaternionToEuler(rotation_); // クォータニオンからオイラー角に変換
+	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+	worldTransform_.TransferMatrix();
+}
+
+// プレイヤーの重力方向を設定するメソッド
+void Player::SetGravityDirection(const Vector3& gravityDirection) {
+	gravityDirection_ = gravityDirection;
 }
 
 float Player::EaseOutSine(float x) { return cosf((x * std::numbers::pi_v<float>) / 2); }

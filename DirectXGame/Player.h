@@ -3,9 +3,11 @@
 #include "Model.h"
 #include "WorldTransform.h"
 #include "assert.h"
-#include <algorithm>
-#include <numbers>
 #include "MyMath.h"
+#include "Quaternion.h"
+
+#include <numbers>
+#include <algorithm>
 
 enum class LRDirecion {
 	kright,
@@ -74,6 +76,46 @@ public:
 	// ワールド位置を設定するメソッドを追加
 	void SetWorldPosition(const Vector3& newPosition);
 
+
+
+
+
+	// プレイヤーの回転を取得
+	Quaternion GetRotation() const {
+		return rotation_;
+	}
+
+
+	// プレイヤーの回転を設定するメソッド
+	void SetRotation(const Quaternion& rotation);
+
+
+	// プレイヤーの高さを取得するメソッド
+	float GetHeight() const {
+		return height_; // プレイヤーの高さを返す
+	}
+
+	// 重力方向のセッター
+	void SetGravityDirection(const Vector3& direction);
+	// 重力方向のゲッター
+	Vector3 GetGravityDirection() const {
+		return gravityDirection_;
+	}
+
+	// 重力加速度を設定
+	void SetGravityAccleration(float accleration) {
+		gravityAccleration_ = accleration;
+	}
+
+	// 重力加速度を取得
+	float GetGravityAccleration() const {
+		return gravityAccleration_;
+	}
+
+
+	static float kGravityAccleration;  // 静的メンバー変数の宣言
+	bool onGround_ = true;
+
 private:
 	WorldTransform worldTransform_;            // ワールド変換データ
 	Model* model_ = nullptr;                   // モデル
@@ -89,10 +131,10 @@ private:
 	float turnTimer_ = 0.0f;                    // 振り向き時間
 	static inline const float KtimeTurn = 0.5f; // 角度補間タイム
 	// ジャンプ
-	bool onGround_ = true;                                 // 接点状態フラグ
-	static inline const float kGravityAccleration = 0.05f; // 重力加速度
+								   // 接点状態フラグ
+	//static inline const float kGravityAccleration = 0.05f; // 重力加速度
 	static inline const float kLimitFallSpeed = 1.0f;      // 最大落下速度
-	static inline const float kJampAcceleration = 0.8f;    // ジャンプ初速
+	static inline const float kJampAcceleration = 1.3f;    // ジャンプ初速
 	// 当たり判定
 	MapChipField* mapChipFild_ = nullptr;
 	static inline const float kWidth = 0.8f;
@@ -105,6 +147,13 @@ private:
 	//死んだ
 	bool isDead_ = false;
 
+	float height_ = 40.0f; // 例としてプレイヤーの高さを40に設定
+
 	Vector3 position_; // プレイヤーの現在位置
+
+	Quaternion rotation_; // プレイヤーの回転
+	Vector3 gravityDirection_ = { 0.0f, -1.0f, 0.0f }; // デフォルトの重力方向（下方向）
+
+	float gravityAccleration_ = -0.05f; // 重力加速度
 
 };

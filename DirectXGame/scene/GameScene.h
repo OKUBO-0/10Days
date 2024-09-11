@@ -64,8 +64,12 @@ public: // メンバ関数
 
 	//フェーズ切り替え
 	void ChangePhase();
+
+	// ブロックの反転とプレイヤーの位置修正を行う関数
 	void InvertBlockPositionsWithCentering();
 
+	// プレイヤーの反転と位置修正を行う関数の宣言
+	void InvertPlayerAndFixPosition();
 
 
 
@@ -97,7 +101,6 @@ private: // メンバ変数
 
 	// MapBlock
 	Model* blockModel_ = nullptr;
-	Model* blockModel2_ = nullptr;
 
 	bool isDebugCameraActive_ = false;
 	DebugCamera* debugCamera_ = nullptr;
@@ -129,4 +132,5 @@ private: // メンバ変数
 	Phase phase_;
 
 	bool finished_ = false;
+	bool invertFlg = false;
 };
