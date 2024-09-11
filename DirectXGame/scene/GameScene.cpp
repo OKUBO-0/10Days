@@ -261,14 +261,14 @@ void GameScene::Draw() {
 			if (!worldTransformBlock)
 				continue;
 
-			uint32_t xIndex = static_cast<uint32_t>(worldTransformBlock->translation_.x);
-			uint32_t yIndex = static_cast<uint32_t>(worldTransformBlock->translation_.y);
-			MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(xIndex, yIndex);
+			//uint32_t xIndex = static_cast<uint32_t>(worldTransformBlock->translation_.x);
+			//uint32_t yIndex = static_cast<uint32_t>(worldTransformBlock->translation_.y);
+			//MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(xIndex, yIndex);
 
-			if (mapChipType == MapChipType::kBlock2) {
-				// block2の場合は描画する
-				blockModel2_->Draw(*worldTransformBlock, viewProjection_);
-			}
+			//if (mapChipType == MapChipType::kBlock2) {
+			//	// block2の場合は描画する
+			//	blockModel2_->Draw(*worldTransformBlock, viewProjection_);
+			//}
 			blockModel_->Draw(*worldTransformBlock, viewProjection_);
 		}
 	}
