@@ -1,4 +1,5 @@
 #include "TitleScene.h"
+#include <numbers>
 
 TitleScene::TitleScene() {}
 
@@ -20,6 +21,11 @@ void TitleScene::Initialize() {
 	skydome_ = new Skydome();
 	modelSkydome_ = Model::CreateFromOBJ("skydomeTitle", true);
 	skydome_->Initialize(modelSkydome_, &viewProjection_);
+
+	Timer_ = 0.0f;
+
+	// タイトルを近づける
+	worldTransform_.translation_ = { 0.0f, 1.0f, 0.0f };  // z値を調整して近づける
 }
 
 void TitleScene::Update() {
@@ -29,6 +35,13 @@ void TitleScene::Update() {
 		finished_ = true;
 
 	}
+
+	Timer_ += 1.0f / 60.0f;
+	float param = std::sin(2.0f * std::numbers::pi_v<float> * Timer_ / kWalklMotionTime);
+	float radian = kWalkMotionAngleStart + kWalkMotionAngleEnd * (param + 1.0f) / 2.0f;
+	worldTransform_.rotation_.y = radian * (std::numbers::pi_v<float> / 90.0f);
+	// 行列計算
+	worldTransform_.UpdateMatrix();
 
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 	// 定数バッファに転送する
