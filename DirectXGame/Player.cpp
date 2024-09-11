@@ -73,7 +73,7 @@ void Player::PrayerMove() {
 			velocity_.y += accceleration.y;
 			velocity_.z += accceleration.z;
 
-			// 最大速度を制限（速度を上げるために制限値を引き上げ）
+			// 最大速度を制限
 			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed * 1.5f, kLimitRunSpeed * 1.5f);
 
 		}
@@ -83,16 +83,16 @@ void Player::PrayerMove() {
 			velocity_.z *= (1.0f - kAttenuation);
 		}
 
-		// ジャンプ処理（重力に応じてジャンプ方向を反転）
+		// ジャンプ処理（ジャンプの威力を半分に設定）
 		if (Input::GetInstance()->PushKey(DIK_UP)) {
 			velocity_.x += 0;
 
 			// 重力が反転している場合、下にジャンプ
 			if (Player::kGravityAccleration < 0.0f) {
-				velocity_.y -= kJampAcceleration * 1.5f;  // ジャンプの速度を上げる
+				velocity_.y -= kJampAcceleration * 0.5f;  // ジャンプ威力を半分に
 			}
 			else {
-				velocity_.y += kJampAcceleration * 1.5f;  // 通常時もジャンプの速度を上げる
+				velocity_.y += kJampAcceleration * 0.5f;  // ジャンプ威力を半分に
 			}
 
 			velocity_.z += 0;
@@ -102,13 +102,14 @@ void Player::PrayerMove() {
 	else {
 		// 落下速度
 		velocity_.x += 0;
-		velocity_.y += -kGravityAccleration; // 重力に応じて落下
+		velocity_.y += -kGravityAccleration;  // 重力に応じて落下
 		velocity_.z += 0;
 
 		// 落下速度制限
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
 }
+
 
 
 void Player::PrayerTurn() {

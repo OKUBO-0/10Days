@@ -84,9 +84,19 @@ struct Quaternion {
         return euler;
     }
 
+    // == 演算子のオーバーロード
+    bool operator==(const Quaternion& other) const {
+        return (x == other.x && y == other.y && z == other.z && w == other.w);
+    }
+
+    // != 演算子のオーバーロード
+    bool operator!=(const Quaternion& other) const {
+        return !(*this == other);
+    }
 };
 
 // クォータニオンをオイラー角に変換する関数
 inline Vector3 QuaternionToEuler(const Quaternion& q) {
     return Quaternion::ToEuler(q);
 }
+

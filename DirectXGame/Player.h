@@ -76,6 +76,14 @@ public:
 	// ワールド位置を設定するメソッドを追加
 	void SetWorldPosition(const Vector3& newPosition);
 
+	
+
+
+
+	// プレイヤーの回転を取得
+	Quaternion GetRotation() const {
+		return rotation_;
+	}
 
 
 	// プレイヤーの回転を設定するメソッド
@@ -104,6 +112,7 @@ public:
 		return gravityAccleration_;
 	}
 
+
 	static float kGravityAccleration;  // 静的メンバー変数の宣言
 	bool onGround_ = true;
 
@@ -125,7 +134,7 @@ private:
 	                               // 接点状態フラグ
 	//static inline const float kGravityAccleration = 0.05f; // 重力加速度
 	static inline const float kLimitFallSpeed = 1.0f;      // 最大落下速度
-	static inline const float kJampAcceleration = 0.8f;    // ジャンプ初速
+	static inline const float kJampAcceleration = 1.3f;    // ジャンプ初速
 	// 当たり判定
 	MapChipField* mapChipFild_ = nullptr;
 	static inline const float kWidth = 0.8f;

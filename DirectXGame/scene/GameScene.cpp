@@ -166,8 +166,10 @@ void GameScene::Update() {
 	if (input_->TriggerKey(DIK_DOWN)) {
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
-
+		
 	}
+	
+
 	
 
 
@@ -330,9 +332,6 @@ void GameScene::InvertBlockPositionsWithCentering() {
 	uint32_t numBlokVirtical = mapChipField_->GetNumBlockVirtical();     // 縦
 	uint32_t numBlokHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
 
-	// 新しい反転用のデータを保持するための一時配列
-	std::vector<std::vector<WorldTransform*>> newWorldTransformBlocks(numBlokVirtical, std::vector<WorldTransform*>(numBlokHorizontal, nullptr));
-
 	// 180度回転と空白とブロックの反転を行う
 	for (uint32_t i = 0; i < numBlokVirtical; ++i) {
 		for (uint32_t j = 0; j < numBlokHorizontal; ++j) {
@@ -342,9 +341,11 @@ void GameScene::InvertBlockPositionsWithCentering() {
 			MapChipType currentChip = mapChipField_->GetMapChipTypeByIndex(j, i);
 			MapChipType invertedChip = (currentChip == MapChipType::kBlock) ? MapChipType::kBlank : MapChipType::kBlock;
 
+			// マップチップを更新
 			mapChipField_->SetMapChipTypeByIndex(invertedJ, invertedI, invertedChip);
 
 			if (invertedChip == MapChipType::kBlock) {
+				// ブロックが存在しなければ新しいワールドトランスフォームを作成
 				if (!worldTransformBlocks_[invertedI][invertedJ]) {
 					WorldTransform* worldTransform = new WorldTransform();
 					worldTransform->Initialize();
@@ -359,6 +360,7 @@ void GameScene::InvertBlockPositionsWithCentering() {
 				worldTransformBlocks_[invertedI][invertedJ]->TransferMatrix();
 			}
 			else {
+				// ブロックが空白になる場合は、メモリを解放して削除
 				if (worldTransformBlocks_[invertedI][invertedJ]) {
 					delete worldTransformBlocks_[invertedI][invertedJ];
 					worldTransformBlocks_[invertedI][invertedJ] = nullptr;
@@ -370,26 +372,42 @@ void GameScene::InvertBlockPositionsWithCentering() {
 	// プレイヤーの位置を保持
 	Vector3 playerPositionBeforeRotation = player_->GetWorldPosition();
 
-	// プレイヤーを逆さまにするためにX軸方向に180度回転
+	// プレイヤーがすでに逆さまかどうかをチェックし、逆さまなら回転を行わない
 	Vector3 xAxis = Vector3(1.0f, 0.0f, 0.0f);
 	float angleRad = 3.14159f; // 180度
+
+	// プレイヤーの回転を確認する
+	Quaternion currentRotation = player_->GetRotation();
 	Quaternion invertedRotation = Quaternion::FromAxisAngle(xAxis, angleRad);
-	player_->SetRotation(invertedRotation);
+
+	// 逆さまの状態かどうかをチェック（180度回転しているか）
+	bool isInverted = (currentRotation == invertedRotation);
+
+	if (!isInverted) {
+		// プレイヤーを逆さまにするためにX軸方向に180度回転
+		player_->SetRotation(invertedRotation);
+	}
+	else {
+		// 180度回転を元に戻す
+		player_->SetRotation(Quaternion::Identity());
+	}
 
 	// プレイヤーの位置を回転前の位置に戻す
 	player_->SetWorldPosition(playerPositionBeforeRotation);
 
 	// 重力の反転
-	// kGravityAcclerationの符号を反転して重力を反転する
 	Player::kGravityAccleration = -Player::kGravityAccleration;
 
-	// プレイヤーがブロックにめり込まないようにY軸方向の調整（ここは必要に応じて使用）
+	// プレイヤーがブロックにめり込まないようにY軸方向の調整
 	Vector3 newPlayerPosition = player_->GetWorldPosition();
-	newPlayerPosition.y += -1.0f; // めり込みが発生したらこの行を調整
+	if (Player::kGravityAccleration > 0.0f) {
+		newPlayerPosition.y += 1.0f; // 通常の重力方向時
+	}
+	else {
+		newPlayerPosition.y -= 1.0f; // 逆さまの重力時
+	}
 
-
-
-	// プレイヤーの位置を再更新
+	// プレイヤーの位置を更新
 	player_->SetWorldPosition(newPlayerPosition);
 }
 
