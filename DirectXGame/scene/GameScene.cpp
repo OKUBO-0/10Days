@@ -11,14 +11,8 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 	delete skydome_;
 	delete mapChipField_;
-	delete enemyModel_;
 	delete deathParticles_;
 	delete deathParticlesModel_;
-
-	for (Enemy* enemy : enemies_) {
-
-		delete enemy;
-	}
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -71,17 +65,8 @@ void GameScene::Initialize() {
 	player_->SetMapChipField(mapChipField_);
 	player_->Initialize(model_, &viewProjection_, playerPostion);
 
-	// Enemy
-	enemyModel_ = Model::CreateFromOBJ("enemy", true);
-	for (int32_t i = 0; i < enemynumber; i++) {
-		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapChipPostionByIndex(17 - i - i - i, 18 - i - i);
-		newEnemy->Initialize(enemyModel_, &viewProjection_, enemyPosition);
-		enemies_.push_back(newEnemy);
-	}
-
 	// CameraController
-	CameraController::Rect cameraArea = { 0.0f, 100 - 12.0f, 6.0f, 6.0f };
+	CameraController::Rect cameraArea = { 11.0f, 28.0f, 6.0f, 48.0f };
 	cameraController_ = new CameraController();
 	cameraController_->Initialize();
 	cameraController_->SetTarget(player_);
@@ -137,7 +122,6 @@ void GameScene::Update() {
 		}
 	}
 
-	CheckAllCollisions();
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_C)) {
 
@@ -286,22 +270,6 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
-}
-
-void GameScene::CheckAllCollisions() {
-
-	AABB aabb1, aabb2;
-	aabb1 = player_->GetAABB();
-	for (Enemy* enemy : enemies_) {
-
-		aabb2 = enemy->GetAABB();
-
-		if (IsCollision(aabb1, aabb2)) {
-
-			player_->OnCollision(enemy);
-			enemy->OnCollision(player_);
-		}
-	}
 }
 
 void GameScene::ChangePhase() {
