@@ -2,8 +2,8 @@
 
 TitleScene::TitleScene() {}
 
-TitleScene::~TitleScene() { 
-	delete model_; 
+TitleScene::~TitleScene() {
+	delete model_;
 	delete skydome_;
 }
 
@@ -23,6 +23,28 @@ void TitleScene::Initialize() {
 }
 
 void TitleScene::Update() {
+
+	// マウス座標を取得
+	Vector2 mousePos = input_->GetMousePosition();
+
+	// ImGuiでマウス座標を表示
+	ImGui::Begin("Mouse Position");
+	ImGui::Text("Mouse X: %.1f", mousePos.x);  // X座標を表示
+	ImGui::Text("Mouse Y: %.1f", mousePos.y);  // Y座標を表示
+	ImGui::End();
+
+	// マウスクリック判定（前の例と同じ処理）
+	int clickAreaX = 400;
+	int clickAreaY = 300;
+	int clickAreaWidth = 100;
+	int clickAreaHeight = 100;
+
+	if (mousePos.x >= clickAreaX && mousePos.x <= clickAreaX + clickAreaWidth &&
+		mousePos.y >= clickAreaY && mousePos.y <= clickAreaY + clickAreaHeight) {
+		if (input_->IsTriggerMouse(0)) {
+			finished_ = true;
+		}
+	}
 
 	if (Input::GetInstance()->PushKey(DIK_SPACE)) {
 
