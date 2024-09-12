@@ -14,6 +14,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include"DeathParticles.h"
+#include "Door.h"
 #include <vector>
 
 
@@ -102,6 +103,7 @@ private: // メンバ変数
 	// MapBlock
 	Model* blockModel_ = nullptr;
 
+
 	bool isDebugCameraActive_ = false;
 	DebugCamera* debugCamera_ = nullptr;
 
@@ -109,6 +111,11 @@ private: // メンバ変数
 	Skydome* skydome_ = nullptr;
 	Model* modelSkydome_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+
+	// Door
+	Door* door_ = nullptr;
+	Model* modelDoor_ = nullptr;
+
 
 	// MapChipField
 	MapChipField* mapChipField_;

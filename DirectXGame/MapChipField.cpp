@@ -10,7 +10,6 @@ namespace {
 		{"1", MapChipType::kBlock},
 		{"2",MapChipType::kBlock2},
 	};
-
 }
 
 void MapChipField::ResetMapChipData() {

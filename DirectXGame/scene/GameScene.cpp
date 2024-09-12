@@ -58,6 +58,12 @@ void GameScene::Initialize() {
 	// Block
 	blockModel_ = Model::CreateFromOBJ("block", true);
 
+	// Door
+	door_ = new Door();
+	modelDoor_ = Model::CreateFromOBJ("Door", true);
+	Vector3 doorPosition = mapChipField_->GetMapChipPostionByIndex(37, 15);
+	door_->Initialize(modelDoor_, &viewProjection_, doorPosition);
+
 	// DebugCamera
 	debugCamera_ = new DebugCamera(1280, 720);
 
@@ -269,6 +275,9 @@ void GameScene::Draw() {
 			blockModel_->Draw(*worldTransformBlock, viewProjection_);
 		}
 	}
+
+	// ドアの描画
+	door_->Draw();
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
