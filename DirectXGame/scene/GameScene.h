@@ -81,6 +81,14 @@ private: // メンバ変数
 	// テクスチャハンドル
 	uint32_t texturHandle_ = 0;
 
+	//キーボードテクスチャ
+	uint32_t keyHandle_ = 0;
+	Sprite* keySprite_ = nullptr;
+
+	//反転テクスチャ
+	uint32_t invertHandle_ = 0;
+	Sprite* invertSprite_ = nullptr;
+
 	//// サウンドデータハンドル
 	//uint32_t soundDataHandle_ = 0;
 
@@ -118,5 +126,5 @@ private: // メンバ変数
 	Phase phase_;
 
 	bool finished_ = false;
-	bool invertFlg = false;
+	bool invertFlg = true;
 };
