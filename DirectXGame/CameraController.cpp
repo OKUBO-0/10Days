@@ -48,14 +48,23 @@ void CameraController::Update() {
 		viewProjection_.translation_.y = Lerp(viewProjection_.translation_.y, dest_.y, kVerticalInterpolationRate);
 		viewProjection_.translation_.z = Lerp(viewProjection_.translation_.z, dest_.z, kInterpolationRate);
 
-		// 追従対象が画面外に出ないように補正（X軸のみ）
+		// 追従対象が画面外に出ないように補正（X軸）
 		viewProjection_.translation_.x = std::clamp(viewProjection_.translation_.x,
 			targetWorldTransform.translation_.x + margin.left,
 			targetWorldTransform.translation_.x + margin.right);
 
-		// 移動範囲制限（X軸のみ）
+		// 移動範囲制限（X軸）
 		viewProjection_.translation_.x = std::clamp(viewProjection_.translation_.x,
 			movableArea_.left, movableArea_.right);
+
+		// 追従対象が画面外に出ないように補正（Y軸）
+		viewProjection_.translation_.y = std::clamp(viewProjection_.translation_.y, 
+			targetWorldTransform.translation_.y + margin.bottom, 
+			targetWorldTransform.translation_.y + margin.top);
+
+		// 移動範囲制限（X軸）
+		viewProjection_.translation_.y = std::clamp(viewProjection_.translation_.y, 
+			movableArea_.bottom, movableArea_.top);
 	}
 
 	// ビュープロジェクション行列の更新
