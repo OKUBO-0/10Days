@@ -15,6 +15,8 @@ enum class Scene {
 	kUnknown = 0,
 	kTitle,
 	kGame,
+	kGame2,
+	kGame3,
 
 };
 Scene scene = Scene::kUnknown;
@@ -37,7 +39,7 @@ void ChengeScene() {
 	case Scene::kGame:
 		if (gameScene->GetIsFinished()) {
 			// sceneの変更
-			scene = Scene::kTitle;
+			scene = Scene::kGame2;
 			// 旧シーンかいほう
 			delete gameScene;
 			titeleScene = nullptr;
@@ -45,8 +47,32 @@ void ChengeScene() {
 			titeleScene = new TitleScene;
 			titeleScene->Initialize();
 		}
-
 		break;
+	case Scene::kGame2:
+		if (titeleScene->GetISFinished()) {
+			// sceneの変更
+			scene = Scene::kGame3;
+			// 旧シーンかいほう
+			delete titeleScene;
+			titeleScene = nullptr;
+			// 新シーンの生成と初期化
+			gameScene = new GameScene;
+			gameScene->Initialize();
+		}
+		break;
+
+	case Scene::kGame3:
+		if (titeleScene->GetISFinished()) {
+			// sceneの変更
+			scene = Scene::kTitle;
+			// 旧シーンかいほう
+			delete titeleScene;
+			titeleScene = nullptr;
+			// 新シーンの生成と初期化
+			gameScene = new GameScene;
+			gameScene->Initialize();
+		}
+		break;;
 	}
 }
 

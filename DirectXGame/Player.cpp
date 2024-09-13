@@ -23,6 +23,7 @@ void Player::Update() {
 	// ImGuiでマウス座標を表示
 	ImGui::Begin("Player Position");
 	ImGui::Text("Player: %f", position_.x);  // X座標を表示
+	ImGui::Text("Player: %f", position_.y);  // X座標を表示
 	//ImGui::Text("Mouse Y: %.1f", mousePos.y);  // Y座標を表示
 	ImGui::End();
 

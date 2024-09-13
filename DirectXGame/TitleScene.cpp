@@ -38,13 +38,16 @@ void TitleScene::Update() {
 
 	// マウス座標を取得
 	Vector2 mousePos = input_->GetMousePosition();
+#ifdef DEBUG
+
+
 
 	// ImGuiでマウス座標を表示
 	ImGui::Begin("Mouse Position");
 	ImGui::Text("Mouse X: %.1f", mousePos.x);  // X座標を表示
 	ImGui::Text("Mouse Y: %.1f", mousePos.y);  // Y座標を表示
 	ImGui::End();
-
+#endif // DEBUG
 	// マウスクリック判定（前の例と同じ処理）
 	int clickArea1X = 410;
 	int clickArea1Y = 490;

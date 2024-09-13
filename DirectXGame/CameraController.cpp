@@ -16,11 +16,12 @@ void CameraController::Initialize() {
 }
 
 void CameraController::Update() {
-
+#ifdef DEBUG
 	// ImGuiでカメラの回転状態を表示
 	ImGui::Begin("CameraRotate");
 	ImGui::Text("viewprojection.Z: %0.1f", viewProjection_.rotation_.z);  // Z軸回転角度を表示
 	ImGui::End();
+#endif
 
 	// 追従対象のワールドトランスフォームを取得
 	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();

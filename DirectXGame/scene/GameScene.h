@@ -20,6 +20,7 @@
 enum class Phase {
 	kplay,
 	kDeath,
+	
 };
 
 /// <summary>
