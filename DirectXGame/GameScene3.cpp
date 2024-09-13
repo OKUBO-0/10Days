@@ -47,8 +47,6 @@ void GameScene3::Initialize() {
 
 	audio_->PlayWave(BGMHandle_);
 
-	audio_->PlayWave(BGMHandle_);
-
 	//// 音声再生
 	//audio_->PlayWave(soundDataHandle_);
 	//voiceHandle_ = audio_->PlayWave(soundDataHandle_, false);

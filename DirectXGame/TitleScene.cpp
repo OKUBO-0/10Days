@@ -70,16 +70,22 @@ void TitleScene::Update() {
 	if (mousePos.x >= clickArea2X && mousePos.x <= clickArea2X + clickAreaWidth &&
 		mousePos.y >= clickArea2Y && mousePos.y <= clickArea2Y + clickAreaHeight) {
 		if (input_->IsTriggerMouse(0)) {
-			finished2_ = true;
+			finished_ = true;
 		}
 	}
 
 	if (mousePos.x >= clickArea3X && mousePos.x <= clickArea3X + clickAreaWidth &&
 		mousePos.y >= clickArea3Y && mousePos.y <= clickArea3Y + clickAreaHeight) {
 		if (input_->IsTriggerMouse(0)) {
-			finished3_ = true;
+			finished_ = true;
 		}
 	}
+
+	//if (Input::GetInstance()->PushKey(DIK_SPACE)) {
+
+	//	finished_ = true;
+
+	//}
 
 	Timer_ += 1.0f / 60.0f;
 	float param = std::sin(2.0f * std::numbers::pi_v<float> *Timer_ / kWalklMotionTime);

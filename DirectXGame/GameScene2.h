@@ -60,7 +60,7 @@ public: // メンバ関数
 	// ブロックの反転とプレイヤーの位置修正を行う関数
 	void InvertBlockPositionsWithCentering();
 
-	void CheckClear();
+	bool  GetIsFinished() const { return finished_; }
 
 	void CheckClear();
 
@@ -128,6 +128,6 @@ private: // メンバ変数
 	//フェーズ
 	Phase phase_;
 
-	bool finished2_ = false;
+	bool finished_ = false;
 	bool invertFlg = true;
 };

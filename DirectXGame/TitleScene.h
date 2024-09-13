@@ -23,10 +23,6 @@ public:
 
 	bool GetISFinished() const { return finished_; }
 
-	bool GetISFinished2() const { return finished2_; }
-
-	bool GetISFinished3() const { return finished3_; }
-
 
 private:
 	DirectXCommon* dxCommon_ = nullptr;
@@ -48,8 +44,6 @@ private:
 	Model* stage3model_ = nullptr;
 
 	bool finished_ = false;
-	bool finished2_ = false;
-	bool finished3_ = false;
 
 	//最初の角度[度]
 	static inline const float kWalkMotionAngleStart = 5.0f;
