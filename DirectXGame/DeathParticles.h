@@ -19,6 +19,10 @@ public:
 
 	bool GetIsFinished() const { return isFinished_; }
 
+	bool GetIsFinished2() const { return isFinished2_; }
+
+	bool GetIsFinished3() const { return isFinished3_; }
+
 private:
 
 	Model* model_ = nullptr;
@@ -35,6 +39,8 @@ private:
 	static inline const float kAngleUnit = 2 * std::numbers::pi_v<float> / kNumParticles;
 	//終了フラグ
 	bool isFinished_ = false;
+	bool isFinished2_ = false;
+	bool isFinished3_ = false;
 	//経過時間カウント
 	float counter_ = 0.0f;
 	ObjectColor objectColor_;

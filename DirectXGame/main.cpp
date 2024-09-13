@@ -38,6 +38,26 @@ void ChengeScene() {
 			gameScene = new GameScene;
 			gameScene->Initialize();
 		}
+		if (titeleScene->GetISFinished2()) {
+			// sceneの変更
+			scene = Scene::kGame2;
+			// 旧シーンかいほう
+			delete gameScene;
+			titeleScene = nullptr;
+			// 新シーンの生成と初期化
+			gameScene2 = new GameScene2;
+			gameScene2->Initialize();
+		}
+		if (titeleScene->GetISFinished3()) {
+			// sceneの変更
+			scene = Scene::kGame3;
+			// 旧シーンかいほう
+			delete gameScene2;
+			titeleScene = nullptr;
+			// 新シーンの生成と初期化
+			gameScene3 = new GameScene3;
+			gameScene3->Initialize();
+		}
 		break;
 
 	case Scene::kGame:
@@ -54,7 +74,7 @@ void ChengeScene() {
 		break;
 
 	case Scene::kGame2:
-		if (gameScene2->GetIsFinished()) {
+		if (gameScene2->GetIsFinished2()) {
 			// sceneの変更
 			scene = Scene::kGame3;
 			// 旧シーンかいほう
@@ -67,7 +87,7 @@ void ChengeScene() {
 		break;
 
 	case Scene::kGame3:
-		if (gameScene3->GetIsFinished()) {
+		if (gameScene3->GetIsFinished3()) {
 			// sceneの変更
 			scene = Scene::kTitle;
 			// 旧シーンかいほう

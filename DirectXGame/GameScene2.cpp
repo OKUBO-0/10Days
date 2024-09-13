@@ -130,6 +130,18 @@ void GameScene2::Update() {
 		cameraController_->Update();
 	}
 
+	/*for (Enemy* enemy : enemies_) {
+		if (!nullptr) {
+			enemy->Update();
+		}
+	}*/
+
+	/*for (Enemy* enemy : enemies_) {
+		if (!nullptr) {
+			enemy->Update();
+		}
+	}*/
+
 	// Block
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -180,7 +192,7 @@ void GameScene2::Update() {
 		if (Player::kGravityAccleration < 0) {
 			Player::kGravityAccleration = -Player::kGravityAccleration;
 		}
-		finished_ = true;  // シーン完了フラグを設定
+		finished2_ = true;  // シーン完了フラグを設定
 	}
 }
 
@@ -301,22 +313,22 @@ void GameScene2::Draw() {
 			}
 		}
 	}
-
+	
+	if (playerPosition.x >= 0.0f && playerPosition.x <= 15.0f && invertFlg) {
+		keySprite_->Draw();
+	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
 
 #pragma region 前景スプライト描画
-	// 前景スプライト描画前処理
+	keySprite_->Draw();
 	Sprite::PreDraw(commandList);
 
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-	
-	if (playerPosition.x >= 0.0f && playerPosition.x <= 15.0f && invertFlg) {
-		keySprite_->Draw();
-	}
+	keySprite_->Draw();
 
 	///
 	///反転してみようを描画
@@ -336,21 +348,21 @@ void GameScene2::ChangePhase() {
 	switch (phase_) {
 
 	case Phase::kplay:
-
-		if (player_->GetIsDead_() == true) {
+		if (deathParticles_ && deathParticles_->GetIsFinished()) {
+			finished_ = true;
+			audio_->StopWave(BGMHandle_);
 			// 死亡演出フェーズに切り替え
 			phase_ = Phase::kDeath;
 			// 自キャラの座標を取得
 			const Vector3& deathParticlesPosition = player_->GetWorldPosition();
-			deathParticles_->Initialize(deathParticlesPosition, deathParticlesModel_, &viewProjection_);
-		}
+		if (deathParticles_ && deathParticles_->GetIsFinished()) {
+			finished_ = true;
 		/*Clear();*/
 		break;
 
 	case Phase::kDeath:
 		if (deathParticles_ && deathParticles_->GetIsFinished()) {
 			finished_ = true;
-			audio_->StopWave(BGMHandle_);
 		}
 		break;
 	}

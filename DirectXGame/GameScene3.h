@@ -128,7 +128,7 @@ private: // メンバ変数
 	//フェーズ
 	Phase phase_;
 
-	bool finished_ = false;
+	bool finished3_ = false;
 	bool invertFlg = true;
 	float invertCooldownTimer_ = 1.0f; // 反転処理のクールダウンタイマー
 };
