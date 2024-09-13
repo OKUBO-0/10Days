@@ -1,12 +1,10 @@
 #include "GameScene2.h"
 #include "TextureManager.h"
+#include <cassert>
 
-GameScene2::GameScene2()
-{
-}
+GameScene2::GameScene2() {}
 
-GameScene2::~GameScene2()
-{
+GameScene2::~GameScene2() {
 	delete model_;
 	delete player_;
 	delete blockModel_;
@@ -25,8 +23,8 @@ GameScene2::~GameScene2()
 	worldTransformBlocks_.clear();
 }
 
-void GameScene2::Initialize()
-{
+void GameScene2::Initialize() {
+
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
@@ -59,6 +57,10 @@ void GameScene2::Initialize()
 
 	// Block
 	blockModel_ = Model::CreateFromOBJ("block", true);
+	blockModel2_ = Model::CreateFromOBJ("block2", true);
+
+	// Door
+	doorModel_ = Model::CreateFromOBJ("door", true);
 
 	// DebugCamera
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -88,16 +90,12 @@ void GameScene2::Initialize()
 	deathParticlesModel_ = Model::CreateFromOBJ("deathParticle", true); // 3Dモデルの生成
 	deathParticles_->Initialize(playerPostion, deathParticlesModel_, &viewProjection_);
 
-	if (player_->GetIsDead_() == true) {
-		finished_ = false;
-	}
-
 	// phase
 	phase_ = Phase::kplay;
 }
 
-void GameScene2::Update()
-{
+void GameScene2::Update() {
+
 	// プレイヤーのX座標を取得
 	Vector3 playerPosition = player_->GetWorldPosition();
 
@@ -113,13 +111,11 @@ void GameScene2::Update()
 	}
 
 	player_->Update();
+
 	// プレイヤーのX座標が19になったら画像を表示する
 	if (playerPosition.x >= 19.0f) {
 		invertHandle_ = true;
 	}
-
-
-
 
 	if (player_->GetIsDead_() == true) {
 		deathParticles_->Update();
@@ -130,9 +126,9 @@ void GameScene2::Update()
 	}
 
 	/*for (Enemy* enemy : enemies_) {
-		if (!nullptr) {
-			enemy->Update();
-		}
+	if (!nullptr) {
+	enemy->Update();
+	}
 	}*/
 
 	// Block
@@ -148,7 +144,6 @@ void GameScene2::Update()
 
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_C)) {
-
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
 
@@ -177,7 +172,8 @@ void GameScene2::Update()
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
 		cameraController_->StartRotation();  // カメラの回転を開始
 	}
-	if (input_->TriggerKey(DIK_1)) {
+
+	if (player_->GetDoorCollicion()==true) {
 		if (Player::kGravityAccleration < 0) {
 			Player::kGravityAccleration = -Player::kGravityAccleration;
 		}
@@ -185,8 +181,7 @@ void GameScene2::Update()
 	}
 }
 
-void GameScene2::GenerateBlokcs()
-{
+void GameScene2::GenerateBlokcs() {
 	// 要素数
 	uint32_t numBlokVirtical = mapChipField_->GetNumBlockVirtical();     // 縦
 	uint32_t numBlokHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
@@ -205,7 +200,7 @@ void GameScene2::GenerateBlokcs()
 			MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(j, i);
 
 			// 1（ブロック）の場合のみ描画
-			if (mapChipType == MapChipType::kBlock) {
+			if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kBlock2) {
 				// 既存のワールドトランスフォームがない場合は新たに生成
 				if (!worldTransformBlocks_[i][j]) {
 					WorldTransform* worldTransform = new WorldTransform();
@@ -213,6 +208,19 @@ void GameScene2::GenerateBlokcs()
 					worldTransformBlocks_[i][j] = worldTransform;
 				}
 				// ブロックの位置を設定
+				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPostionByIndex(j, i);
+				worldTransformBlocks_[i][j]->matWorld_ = MakeAffineMatrix(
+					worldTransformBlocks_[i][j]->scale_,
+					worldTransformBlocks_[i][j]->rotation_,
+					worldTransformBlocks_[i][j]->translation_);
+				worldTransformBlocks_[i][j]->TransferMatrix();
+			}
+			else if (mapChipType == MapChipType::kDoor) {
+				if (!worldTransformBlocks_[i][j]) {
+					WorldTransform* worldTransform = new WorldTransform();
+					worldTransform->Initialize();
+					worldTransformBlocks_[i][j] = worldTransform;
+				}
 				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPostionByIndex(j, i);
 				worldTransformBlocks_[i][j]->matWorld_ = MakeAffineMatrix(
 					worldTransformBlocks_[i][j]->scale_,
@@ -231,8 +239,8 @@ void GameScene2::GenerateBlokcs()
 	}
 }
 
-void GameScene2::Draw()
-{
+void GameScene2::Draw() {
+
 	// プレイヤーのX座標を取得
 	Vector3 playerPosition = player_->GetWorldPosition();
 
@@ -265,18 +273,28 @@ void GameScene2::Draw()
 		player_->Draw();
 	}
 
-
-
 	if (player_->GetIsDead_() == true) {
 		deathParticles_->Draw();
 	}
 
 	skydome_->Draw();
-	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
-			if (!worldTransformBlock)
-				continue;
-			blockModel_->Draw(*worldTransformBlock, viewProjection_);
+
+	// ブロックとドアの描画
+	for (size_t i = 0; i < worldTransformBlocks_.size(); ++i) {
+		for (size_t j = 0; j < worldTransformBlocks_[i].size(); ++j) {
+			WorldTransform* worldTransformBlock = worldTransformBlocks_[i][j];
+			if (!worldTransformBlock) continue;
+
+			MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(uint32_t(j), uint32_t(i));
+
+			if (mapChipType == MapChipType::kBlock) {
+				// ブロックの描画
+				blockModel_->Draw(*worldTransformBlock, viewProjection_);
+			}
+			else if (mapChipType == MapChipType::kDoor) {
+				// ドアの描画
+				doorModel_->Draw(*worldTransformBlock, viewProjection_);
+			}
 		}
 	}
 
@@ -291,7 +309,17 @@ void GameScene2::Draw()
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-	keySprite_->Draw();
+
+	if (playerPosition.x >= 0.0f && playerPosition.x <= 15.0f && invertFlg) {
+		keySprite_->Draw();
+	}
+
+	///
+	///反転してみようを描画
+	/// 
+	if (playerPosition.x >= 15.0f && playerPosition.x <= 19.0f && invertFlg) {
+		invertSprite_->Draw();
+	}
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -299,8 +327,8 @@ void GameScene2::Draw()
 #pragma endregion
 }
 
-void GameScene2::ChangePhase()
-{
+void GameScene2::ChangePhase() {
+
 	switch (phase_) {
 
 	case Phase::kplay:
@@ -312,6 +340,7 @@ void GameScene2::ChangePhase()
 			const Vector3& deathParticlesPosition = player_->GetWorldPosition();
 			deathParticles_->Initialize(deathParticlesPosition, deathParticlesModel_, &viewProjection_);
 		}
+		/*Clear();*/
 
 		break;
 
@@ -322,13 +351,14 @@ void GameScene2::ChangePhase()
 		break;
 	}
 }
-
 #pragma region 反転
+
 void GameScene2::InvertBlockPositionsWithCentering() {
 	// マップの縦横のブロック数を取得
 	uint32_t numBlockVertical = mapChipField_->GetNumBlockVirtical();     // 縦
 	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
 
+	// 180度回転と空白とブロックの反転を行う
 	// 一時的な2D配列を作成してマップデータを保存
 	std::vector<std::vector<MapChipType>> tempMap(numBlockVertical, std::vector<MapChipType>(numBlockHorizontal));
 
@@ -353,20 +383,32 @@ void GameScene2::InvertBlockPositionsWithCentering() {
 				continue;
 			}
 
-			// 1と0の入れ替え（ブロックと空白の反転）
-			MapChipType invertedChip = (currentChip == MapChipType::kBlock) ? MapChipType::kBlank : MapChipType::kBlock;
+			// 1と0の入れ替え（ブロックと空白の反転）およびドアの処理
+			MapChipType invertedChip;
+			if (currentChip == MapChipType::kBlock) {
+				invertedChip = MapChipType::kBlank;
+			}
+			else if (currentChip == MapChipType::kBlank) {
+				invertedChip = MapChipType::kBlock;
+			}
+			else if (currentChip == MapChipType::kDoor) {
+				invertedChip = MapChipType::kDoor;
+			}
+			else {
+				invertedChip = MapChipType::kBlank; // その他の種類は空白にする
+			}
 
 			// マップチップを更新（位置を反転させて）
 			mapChipField_->SetMapChipTypeByIndex(invertedJ, invertedI, invertedChip);
 
-			if (invertedChip == MapChipType::kBlock) {
-				// ブロックが存在しなければ新しいワールドトランスフォームを作成
+			if (invertedChip == MapChipType::kBlock || invertedChip == MapChipType::kDoor) {
+				// ブロックまたはドアが存在しなければ新しいワールドトランスフォームを作成
 				if (!worldTransformBlocks_[invertedI][invertedJ]) {
 					WorldTransform* worldTransform = new WorldTransform();
 					worldTransform->Initialize();
 					worldTransformBlocks_[invertedI][invertedJ] = worldTransform;
 				}
-				// ブロックの位置を設定
+				// ブロックまたはドアの位置を設定
 				Vector3 newPosition = mapChipField_->GetMapChipPostionByIndex(invertedJ, invertedI);
 				worldTransformBlocks_[invertedI][invertedJ]->translation_ = newPosition;
 				worldTransformBlocks_[invertedI][invertedJ]->matWorld_ = MakeAffineMatrix(
@@ -376,7 +418,7 @@ void GameScene2::InvertBlockPositionsWithCentering() {
 				worldTransformBlocks_[invertedI][invertedJ]->TransferMatrix();
 			}
 			else {
-				// ブロックが空白になる場合は、メモリを解放して削除
+				// ブロックまたはドアが空白になる場合は、メモリを解放して削除
 				if (worldTransformBlocks_[invertedI][invertedJ]) {
 					delete worldTransformBlocks_[invertedI][invertedJ];
 					worldTransformBlocks_[invertedI][invertedJ] = nullptr;
@@ -384,7 +426,6 @@ void GameScene2::InvertBlockPositionsWithCentering() {
 			}
 		}
 	}
-
 
 	// プレイヤーの位置を保持
 	Vector3 playerPositionBeforeRotation = player_->GetWorldPosition();

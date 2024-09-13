@@ -73,6 +73,10 @@ public:
 
 	bool GetIsDead_() const { return isDead_; }
 
+
+	bool GetDoorCollicion()const { return doorHit; }
+
+
 	// ワールド位置を設定するメソッドを追加
 	void SetWorldPosition(const Vector3& newPosition);
 
@@ -111,6 +115,8 @@ public:
 	static float kGravityAccleration;  // 静的メンバー変数の宣言
 	bool onGround_ = true;
 
+	
+
 private:
 	WorldTransform worldTransform_;            // ワールド変換データ
 	Model* model_ = nullptr;                   // モデル
@@ -141,6 +147,10 @@ private:
 
 	//死んだ
 	bool isDead_ = false;
+
+	
+	bool doorHit = false;
+	
 
 	float height_ = 40.0f; // 例としてプレイヤーの高さを40に設定
 

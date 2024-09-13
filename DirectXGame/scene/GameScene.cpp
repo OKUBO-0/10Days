@@ -173,7 +173,7 @@ void GameScene::Update() {
 		cameraController_->StartRotation();  // カメラの回転を開始
 	}
 
-	if (input_->TriggerKey(DIK_1)) {
+	if (player_->GetDoorCollicion()==true) {
 		if (Player::kGravityAccleration < 0) {
 			Player::kGravityAccleration = -Player::kGravityAccleration;
 		}
