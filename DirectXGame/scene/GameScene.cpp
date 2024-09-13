@@ -29,6 +29,15 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
+
+	//サウンドデータ読み込み
+	BGMHandle_ = audio_->LoadWave("sound/BGM.mp3");
+	JumpSEHandle_ = audio_->LoadWave("sound/jump.mp3");
+	InvertSEHandle_ = audio_->LoadWave("sound/invert.mp3");
+
+	audio_->PlayWave(BGMHandle_);
+
+
 	// テクスチャ読み込み
 	texturHandle_ = TextureManager::Load("pralyer.png");
 
@@ -161,10 +170,13 @@ void GameScene::Update() {
 		// ビュープロジェクション行列の更新と転送
 		viewProjection_.TransferMatrix();
 	}
-
+	if (input_->TriggerKey(DIK_SPACE)) {
+		audio_->PlayWave(JumpSEHandle_);
+	}
 
 	//反転処理
 	if (input_->TriggerKey(DIK_S)&& playerPosition.x >= 15.0f) {
+		audio_->PlayWave(InvertSEHandle_);
 		invertFlg = false;
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
@@ -175,6 +187,7 @@ void GameScene::Update() {
 		if(Player::kGravityAccleration < 0) {
 			Player::kGravityAccleration = -Player::kGravityAccleration;
 		}
+		audio_->StopWave(BGMHandle_);
 		finished_ = true;  // シーン完了フラグを設定
 		
 	}
@@ -326,6 +339,7 @@ void GameScene::ChangePhase() {
 	case Phase::kDeath:
 		if (deathParticles_ && deathParticles_->GetIsFinished()) {
 			finished_ = true;
+			BGMHandle_ = 0;
 		}
 		break;
 	}

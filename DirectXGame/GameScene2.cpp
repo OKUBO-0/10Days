@@ -50,6 +50,15 @@ void GameScene2::Initialize()
 	//audio_->PlayWave(soundDataHandle_);
 	//voiceHandle_ = audio_->PlayWave(soundDataHandle_, false);
 
+	//サウンドデータ読み込み
+
+	BGMHandle_ = audio_->LoadWave("sound/BGM.mp3");
+	JumpSEHandle_ = audio_->LoadWave("sound/jump.mp3");
+	InvertSEHandle_ = audio_->LoadWave("sound/invert.mp3");
+
+	audio_->PlayWave(BGMHandle_);
+
+
 	// ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 
@@ -170,8 +179,13 @@ void GameScene2::Update()
 	}
 
 
+	if (input_->TriggerKey(DIK_SPACE)) {
+		audio_->PlayWave(JumpSEHandle_);
+	}
+
 	//反転処理
-	if (input_->TriggerKey(DIK_S)) {
+	if (input_->TriggerKey(DIK_S) && playerPosition.x >= 15.0f) {
+		audio_->PlayWave(InvertSEHandle_);
 		invertFlg = false;
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
@@ -181,6 +195,7 @@ void GameScene2::Update()
 		if (Player::kGravityAccleration < 0) {
 			Player::kGravityAccleration = -Player::kGravityAccleration;
 		}
+		audio_->StopWave(BGMHandle_);
 		finished_ = true;  // シーン完了フラグを設定
 
 	}
