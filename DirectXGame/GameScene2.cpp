@@ -171,7 +171,7 @@ void GameScene2::Update()
 
 
 	//反転処理
-	if (input_->TriggerKey(DIK_S) && playerPosition.x >= 15.0f) {
+	if (input_->TriggerKey(DIK_S)) {
 		invertFlg = false;
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
@@ -286,14 +286,13 @@ void GameScene2::Draw()
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-	if (playerPosition.x >= 0.0f && playerPosition.x <= 15.0f && invertFlg) {
-		keySprite_->Draw();
-	}
+	keySprite_->Draw();
+
 
 	///
 	///反転してみようを描画
 	/// 
-	
+
 
 
 
