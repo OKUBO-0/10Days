@@ -2,6 +2,8 @@
 #include "AxisIndicator.h"
 #include "DirectXCommon.h"
 #include "GameScene.h"
+#include "GameScene2.h"
+#include "GameScene3.h"
 #include "ImGuiManager.h"
 #include "PrimitiveDrawer.h"
 #include "TextureManager.h"
@@ -9,13 +11,16 @@
 #include "WinApp.h"
 
 GameScene* gameScene = nullptr;
+GameScene2* gameScene2 = nullptr;
+GameScene3* gameScene3 = nullptr;
 TitleScene* titeleScene = nullptr;
 
 enum class Scene {
 	kUnknown = 0,
 	kTitle,
 	kGame,
-
+	kGame2,
+	kGame3,
 };
 Scene scene = Scene::kUnknown;
 
@@ -34,19 +39,45 @@ void ChengeScene() {
 			gameScene->Initialize();
 		}
 		break;
+
 	case Scene::kGame:
 		if (gameScene->GetIsFinished()) {
 			// sceneの変更
-			scene = Scene::kTitle;
+			scene = Scene::kGame2;
 			// 旧シーンかいほう
 			delete gameScene;
+			titeleScene = nullptr;
+			// 新シーンの生成と初期化
+			gameScene2 = new GameScene2;
+			gameScene2->Initialize();
+		}
+		break;
+
+	case Scene::kGame2:
+		if (gameScene2->GetIsFinished()) {
+			// sceneの変更
+			scene = Scene::kGame3;
+			// 旧シーンかいほう
+			delete gameScene;
+			titeleScene = nullptr;
+			// 新シーンの生成と初期化
+			gameScene3 = new GameScene3;
+			gameScene3->Initialize();
+		}
+		break;
+
+	case Scene::kGame3:
+		if (gameScene3->GetIsFinished()) {
+			// sceneの変更
+			scene = Scene::kTitle;
+			// 旧シーンかいほう
+			delete titeleScene;
 			titeleScene = nullptr;
 			// 新シーンの生成と初期化
 			titeleScene = new TitleScene;
 			titeleScene->Initialize();
 		}
-
-		break;
+		break;;
 	}
 }
 
@@ -59,6 +90,12 @@ void UpdateScene() {
 	case Scene::kGame:
 		gameScene->Update();
 		break;
+	case Scene::kGame2:
+		gameScene2->Update();
+		break;
+	case Scene::kGame3:
+		gameScene3->Update();
+		break;
 	}
 }
 
@@ -70,6 +107,12 @@ void DrawScene() {
 		break;
 	case Scene::kGame:
 		gameScene->Draw();
+		break;
+	case Scene::kGame2:
+		gameScene2->Draw();
+		break;
+	case Scene::kGame3:
+		gameScene3->Draw();
 		break;
 	}
 }
@@ -170,6 +213,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	// 各種解放
+	delete gameScene3;
+	delete gameScene2;
 	delete gameScene;
 	delete titeleScene;
 	// 3Dモデル解放

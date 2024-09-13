@@ -19,12 +19,6 @@ void Player::Initialize(Model* model, ViewProjection* viewProjection, const Vect
 
 void Player::Update() {
 
-	// ImGuiでマウス座標を表示
-	ImGui::Begin("Player Position");
-	ImGui::Text("Player: %f", position_.x);  // X座標を表示
-	//ImGui::Text("Mouse Y: %.1f", mousePos.y);  // Y座標を表示
-	ImGui::End();
-
 	PrayerMove();
 	// 衝突判定を初期化
 	CollisionMapInfo collisionMapInfo;
@@ -42,6 +36,10 @@ void Player::Update() {
 	worldTransform_.UpdateMatrix();
 	// 行列を定数バッファに転送
 	worldTransform_.TransferMatrix();
+
+	/*if (Input::GetInstance()->PushKey(DIK_1)) {
+		Clear();
+	}*/
 }
 
 void Player::Draw() {
@@ -117,8 +115,6 @@ void Player::PrayerMove() {
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
 }
-
-
 
 void Player::PrayerTurn() {
 	if (turnTimer_ > 0.0f) {
@@ -274,6 +270,20 @@ void Player::CollisionMapInfoTop(CollisionMapInfo& info) {
 		hit = true;
 	}
 
+	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
+	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType == MapChipType::kDoor) {
+		hit = true;
+	}
+	// 右点の判定
+	// 左点の判定
+
+	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
+	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType == MapChipType::kDoor) {
+		hit = true;
+	}
+
 
 	// hit
 	if (hit) {
@@ -323,6 +333,18 @@ void Player::CollisionMapInfoBootm(CollisionMapInfo& info) {
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kBlock2) {
+		hit = true;
+	}
+
+	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
+	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType == MapChipType::kDoor) {
+		hit = true;
+	}
+	// 右点の判定
+	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
+	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType == MapChipType::kDoor) {
 		hit = true;
 	}
 
@@ -381,6 +403,21 @@ void Player::CollisionMapInfoRight(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock2) {
 		hit = true;
 	}
+
+	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightTop] + Vector3(+kCollisionsmallnumber, 0, 0));
+	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType == MapChipType::kDoor) {
+		hit = true;
+	}
+
+	// 右下点の判定
+
+	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom] + Vector3(+kCollisionsmallnumber, 0, 0));
+	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType == MapChipType::kDoor) {
+		hit = true;
+	}
+
 	// hit
 	if (hit) {
 		// めり込みを排除する方向に移動量を設定する
@@ -436,6 +473,21 @@ void Player::CollisionMapInfoLeft(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock2) {
 		hit = true;
 	}
+
+	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop] + Vector3(-kCollisionsmallnumber, 0, 0));
+	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType == MapChipType::kDoor) {
+		hit = true;
+	}
+
+	// hidari下点の判定
+
+	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom] + Vector3(-kCollisionsmallnumber, 0, 0));
+	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType == MapChipType::kDoor) {
+		hit = true;
+	}
+
 	// hit
 	if (hit) {
 		// めり込みを排除する方向に移動量を設定する
@@ -466,13 +518,6 @@ AABB Player::GetAABB() {
 	aabb.max = { worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f };
 
 	return aabb;
-}
-
-void Player::OnCollision(const Enemy* enemy) {
-
-	(void)enemy;
-	//velocity_.y += kJampAcceleration;
-	isDead_ = true;
 }
 
 void Player::SetWorldPosition(const Vector3& newPosition)

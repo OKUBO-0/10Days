@@ -13,27 +13,27 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
-#include "DeathParticles.h"
-#include "Door.h"
+#include"DeathParticles.h"
 #include"Phase.h"
 #include <vector>
+
 
 
 /// <summary>
 /// ゲームシーン
 /// </summary>
-class GameScene {
+class GameScene2 {
 
 public: // メンバ関数
 	/// <summary>
 	/// コンストクラタ
 	/// </summary>
-	GameScene();
+	GameScene2();
 
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~GameScene();
+	~GameScene2();
 
 	/// <summary>
 	/// 初期化
@@ -58,13 +58,13 @@ public: // メンバ関数
 	//フェーズ切り替え
 	void ChangePhase();
 
+	void ClearPhase();
+
 	// ブロックの反転とプレイヤーの位置修正を行う関数
 	void InvertBlockPositionsWithCentering();
 
 
 	bool  GetIsFinished() const { return finished_; }
-
-	void CheckClear();
 
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
@@ -100,7 +100,6 @@ private: // メンバ変数
 
 	// MapBlock
 	Model* blockModel_ = nullptr;
-	Model* blockModel2_ = nullptr;
 
 	bool isDebugCameraActive_ = false;
 	DebugCamera* debugCamera_ = nullptr;
@@ -109,9 +108,6 @@ private: // メンバ変数
 	Skydome* skydome_ = nullptr;
 	Model* modelSkydome_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
-
-	// Door
-	Model* doorModel_ = nullptr;
 
 	// MapChipField
 	MapChipField* mapChipField_;

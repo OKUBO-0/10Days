@@ -8,7 +8,6 @@
 
 #include <numbers>
 #include <algorithm>
-#include <imgui.h>
 
 enum class LRDirecion {
 	kright,
@@ -77,10 +76,6 @@ public:
 	// ワールド位置を設定するメソッドを追加
 	void SetWorldPosition(const Vector3& newPosition);
 
-
-
-
-
 	// プレイヤーの回転を取得
 	Quaternion GetRotation() const {
 		return rotation_;
@@ -112,7 +107,6 @@ public:
 	float GetGravityAccleration() const {
 		return gravityAccleration_;
 	}
-
 
 	static float kGravityAccleration;  // 静的メンバー変数の宣言
 	bool onGround_ = true;
@@ -156,5 +150,6 @@ private:
 	Vector3 gravityDirection_ = { 0.0f, -1.0f, 0.0f }; // デフォルトの重力方向（下方向）
 
 	float gravityAccleration_ = -0.05f; // 重力加速度
+
 
 };
