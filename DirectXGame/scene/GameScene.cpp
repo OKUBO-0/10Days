@@ -375,6 +375,7 @@ void GameScene::InvertBlockPositionsWithCentering() {
 		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
 			uint32_t invertedI = numBlockVertical - 1 - i;
 			uint32_t invertedJ = numBlockHorizontal - 1 - j;
+			
 
 			MapChipType currentChip = tempMap[i][j];
 
@@ -384,30 +385,42 @@ void GameScene::InvertBlockPositionsWithCentering() {
 				continue;
 			}
 
-			// 1と0の入れ替え（ブロックと空白の反転）
-			MapChipType invertedChip = (currentChip == MapChipType::kBlock) ? MapChipType::kBlank : MapChipType::kBlock;
+			
+			// 1と0の入れ替え（ブロックと空白の反転）およびドアの処理
+			MapChipType invertedChip;
+			if (currentChip == MapChipType::kBlock) {
+				invertedChip = MapChipType::kBlank;
+			} else if (currentChip == MapChipType::kBlank) {
+				invertedChip = MapChipType::kBlock;
+			} else if (currentChip == MapChipType::kDoor) {
+				invertedChip = MapChipType::kDoor;
+			}else {
+				invertedChip = MapChipType::kBlank; // その他の種類は空白にする
+			}
 
 			// マップチップを更新（位置を反転させて）
 			mapChipField_->SetMapChipTypeByIndex(invertedJ, invertedI, invertedChip);
 
-			if (invertedChip == MapChipType::kBlock) {
-				// ブロックが存在しなければ新しいワールドトランスフォームを作成
+			if (invertedChip == MapChipType::kBlock || invertedChip == MapChipType::kDoor) {
+				// ブロックまたはドアが存在しなければ新しいワールドトランスフォームを作成
 				if (!worldTransformBlocks_[invertedI][invertedJ]) {
 					WorldTransform* worldTransform = new WorldTransform();
 					worldTransform->Initialize();
 					worldTransformBlocks_[invertedI][invertedJ] = worldTransform;
 				}
-				// ブロックの位置を設定
+				// ブロックまたはドアの位置を設定
 				Vector3 newPosition = mapChipField_->GetMapChipPostionByIndex(invertedJ, invertedI);
 				worldTransformBlocks_[invertedI][invertedJ]->translation_ = newPosition;
+
+				
+
 				worldTransformBlocks_[invertedI][invertedJ]->matWorld_ = MakeAffineMatrix(
 					worldTransformBlocks_[invertedI][invertedJ]->scale_,
 					worldTransformBlocks_[invertedI][invertedJ]->rotation_,
 					worldTransformBlocks_[invertedI][invertedJ]->translation_);
 				worldTransformBlocks_[invertedI][invertedJ]->TransferMatrix();
-			}
-			else {
-				// ブロックが空白になる場合は、メモリを解放して削除
+			} else {
+				// ブロックまたはドアが空白になる場合は、メモリを解放して削除
 				if (worldTransformBlocks_[invertedI][invertedJ]) {
 					delete worldTransformBlocks_[invertedI][invertedJ];
 					worldTransformBlocks_[invertedI][invertedJ] = nullptr;
@@ -415,7 +428,6 @@ void GameScene::InvertBlockPositionsWithCentering() {
 			}
 		}
 	}
-
 
 	// プレイヤーの位置を保持
 	Vector3 playerPositionBeforeRotation = player_->GetWorldPosition();
@@ -434,8 +446,7 @@ void GameScene::InvertBlockPositionsWithCentering() {
 	if (!isInverted) {
 		// プレイヤーを逆さまにするためにX軸方向に180度回転
 		player_->SetRotation(invertedRotation);
-	}
-	else {
+	} else {
 		// 180度回転を元に戻す
 		player_->SetRotation(Quaternion::Identity());
 	}
@@ -450,8 +461,7 @@ void GameScene::InvertBlockPositionsWithCentering() {
 	Vector3 newPlayerPosition = player_->GetWorldPosition();
 	if (Player::kGravityAccleration > 0.0f) {
 		newPlayerPosition.y += 1.0f; // 通常の重力方向時
-	}
-	else {
+	} else {
 		newPlayerPosition.y -= 1.0f; // 逆さまの重力時
 	}
 
