@@ -129,7 +129,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ゲームウィンドウの作成
 	win = WinApp::GetInstance();
-	win->CreateGameWindow(L"反転世界");
+	win->CreateGameWindow(L"2043_反転世界");
 
 	// DirectX初期化処理
 	dxCommon = DirectXCommon::GetInstance();
