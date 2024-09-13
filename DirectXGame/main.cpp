@@ -58,7 +58,7 @@ void ChengeScene() {
 			// sceneの変更
 			scene = Scene::kGame3;
 			// 旧シーンかいほう
-			delete gameScene;
+			delete gameScene2;
 			titeleScene = nullptr;
 			// 新シーンの生成と初期化
 			gameScene3 = new GameScene3;
@@ -71,7 +71,7 @@ void ChengeScene() {
 			// sceneの変更
 			scene = Scene::kTitle;
 			// 旧シーンかいほう
-			delete titeleScene;
+			delete gameScene3;
 			titeleScene = nullptr;
 			// 新シーンの生成と初期化
 			titeleScene = new TitleScene;

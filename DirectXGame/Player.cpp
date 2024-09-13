@@ -274,7 +274,7 @@ void Player::CollisionMapInfoTop(CollisionMapInfo& info) {
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kDoor) {
-		hit = true;
+		doorHit = true;
 	}
 	// 右点の判定
 	// 左点の判定
@@ -282,7 +282,7 @@ void Player::CollisionMapInfoTop(CollisionMapInfo& info) {
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kDoor) {
-		hit = true;
+		doorHit = true;
 	}
 
 
@@ -340,13 +340,13 @@ void Player::CollisionMapInfoBootm(CollisionMapInfo& info) {
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kDoor) {
-		hit = true;
+		doorHit = true;
 	}
 	// 右点の判定
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kDoor) {
-		hit = true;
+		doorHit = true;
 	}
 
 	// hit
@@ -408,7 +408,7 @@ void Player::CollisionMapInfoRight(CollisionMapInfo& info) {
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightTop] + Vector3(+kCollisionsmallnumber, 0, 0));
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kDoor) {
-		hit = true;
+		doorHit = true;
 	}
 
 	// 右下点の判定
@@ -416,7 +416,7 @@ void Player::CollisionMapInfoRight(CollisionMapInfo& info) {
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom] + Vector3(+kCollisionsmallnumber, 0, 0));
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kDoor) {
-		hit = true;
+		doorHit = true;
 	}
 
 	// hit
@@ -478,7 +478,7 @@ void Player::CollisionMapInfoLeft(CollisionMapInfo& info) {
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop] + Vector3(-kCollisionsmallnumber, 0, 0));
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kDoor) {
-		hit = true;
+		doorHit = true;
 	}
 
 	// hidari下点の判定
@@ -486,7 +486,7 @@ void Player::CollisionMapInfoLeft(CollisionMapInfo& info) {
 	indexSet = mapChipFild_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom] + Vector3(-kCollisionsmallnumber, 0, 0));
 	mapChipType = mapChipFild_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	if (mapChipType == MapChipType::kDoor) {
-		hit = true;
+		doorHit = true;
 	}
 
 	// hit

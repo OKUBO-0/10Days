@@ -74,6 +74,8 @@ public:
 
 	bool GetIsDead_() const { return isDead_; }
 
+	bool GetDoorCollicion()const { return doorHit; }
+
 	// ワールド位置を設定するメソッドを追加
 	void SetWorldPosition(const Vector3& newPosition);
 
@@ -143,6 +145,8 @@ private:
 	//死んだ
 	bool isDead_ = false;
 
+	bool doorHit = false;
+
 	float height_ = 40.0f; // 例としてプレイヤーの高さを40に設定
 
 	Vector3 position_; // プレイヤーの現在位置
@@ -151,6 +155,4 @@ private:
 	Vector3 gravityDirection_ = { 0.0f, -1.0f, 0.0f }; // デフォルトの重力方向（下方向）
 
 	float gravityAccleration_ = -0.05f; // 重力加速度
-
-
 };

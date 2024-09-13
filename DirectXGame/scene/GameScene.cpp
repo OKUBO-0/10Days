@@ -29,6 +29,13 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
+	//サウンドデータ読み込み
+	BGMHandle_ = audio_->LoadWave("sound/BGM.mp3");
+	JumpSEHandle_ = audio_->LoadWave("sound/jump.mp3");
+	InvertSEHandle_ = audio_->LoadWave("sound/invert.mp3");
+
+	audio_->PlayWave(BGMHandle_);
+
 	// テクスチャ読み込み
 	texturHandle_ = TextureManager::Load("pralyer.png");
 
@@ -39,9 +46,6 @@ void GameScene::Initialize() {
 	//反転テクスチャ
 	invertHandle_ = TextureManager::Load("images/invert.png");
 	invertSprite_ = Sprite::Create(invertHandle_, { 300,0 });
-
-	//// サウンドデータの読み込み
-	//soundDataHandle_ = audio_->LoadWave("st005.wav");
 
 	//// 音声再生
 	//audio_->PlayWave(soundDataHandle_);
@@ -78,7 +82,7 @@ void GameScene::Initialize() {
 	player_->Initialize(model_, &viewProjection_, playerPostion);
 
 	// CameraController
-	CameraController::Rect cameraArea = { 11.0f, 28.0f, 6.0f, 48.0f };
+	CameraController::Rect cameraArea = { 12.0f, 27.0f, 6.0f, 48.0f };
 	cameraController_ = new CameraController();
 	cameraController_->Initialize();
 	cameraController_->SetTarget(player_);
@@ -125,12 +129,6 @@ void GameScene::Update() {
 		cameraController_->Update();
 	}
 
-	/*for (Enemy* enemy : enemies_) {
-		if (!nullptr) {
-			enemy->Update();
-		}
-	}*/
-
 	// Block
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -164,19 +162,24 @@ void GameScene::Update() {
 		viewProjection_.TransferMatrix();
 	}
 
+	if (input_->TriggerKey(DIK_SPACE)) {
+		audio_->PlayWave(JumpSEHandle_);
+	}
 
 	//反転処理
 	if (input_->TriggerKey(DIK_S) && playerPosition.x >= 15.0f) {
+		audio_->PlayWave(InvertSEHandle_);
 		invertFlg = false;
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
 		cameraController_->StartRotation();  // カメラの回転を開始
 	}
 
-	if (input_->TriggerKey(DIK_1)) {
+	if (player_->GetDoorCollicion() == true) {
 		if (Player::kGravityAccleration < 0) {
 			Player::kGravityAccleration = -Player::kGravityAccleration;
 		}
+		audio_->StopWave(BGMHandle_);
 		finished_ = true;  // シーン完了フラグを設定
 	}
 }
@@ -279,6 +282,10 @@ void GameScene::Draw() {
 
 	skydome_->Draw();
 
+	if (finished_ == true) {
+		deathParticles_->Draw();
+	}
+
 	// ブロックとドアの描画
 	for (size_t i = 0; i < worldTransformBlocks_.size(); ++i) {
 		for (size_t j = 0; j < worldTransformBlocks_[i].size(); ++j) {
@@ -347,6 +354,7 @@ void GameScene::ChangePhase() {
 	case Phase::kDeath:
 		if (deathParticles_ && deathParticles_->GetIsFinished()) {
 			finished_ = true;
+			BGMHandle_ = 0;
 		}
 		break;
 	}

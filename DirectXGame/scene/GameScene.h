@@ -88,8 +88,10 @@ private: // メンバ変数
 	uint32_t invertHandle_ = 0;
 	Sprite* invertSprite_ = nullptr;
 
-	//// サウンドデータハンドル
-	//uint32_t soundDataHandle_ = 0;
+	// サウンドデータハンドル
+	uint32_t BGMHandle_ = 0;
+	uint32_t JumpSEHandle_ = 0;
+	uint32_t InvertSEHandle_ = 0;
 
 	//// 音声再生ハンドル
 	//uint32_t voiceHandle_ = 0;

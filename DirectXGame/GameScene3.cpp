@@ -1,12 +1,10 @@
 #include "GameScene3.h"
 #include "TextureManager.h"
+#include <cassert>
 
-GameScene3::GameScene3()
-{
-}
+GameScene3::GameScene3() {}
 
-GameScene3::~GameScene3()
-{
+GameScene3::~GameScene3() {
 	delete model_;
 	delete player_;
 	delete blockModel_;
@@ -25,8 +23,7 @@ GameScene3::~GameScene3()
 	worldTransformBlocks_.clear();
 }
 
-void GameScene3::Initialize()
-{
+void GameScene3::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -43,8 +40,12 @@ void GameScene3::Initialize()
 	invertHandle_ = TextureManager::Load("images/invert.png");
 	invertSprite_ = Sprite::Create(invertHandle_, { 300,0 });
 
-	//// サウンドデータの読み込み
-	//soundDataHandle_ = audio_->LoadWave("st005.wav");
+	//サウンドデータ読み込み
+	BGMHandle_ = audio_->LoadWave("sound/BGM.mp3");
+	JumpSEHandle_ = audio_->LoadWave("sound/jump.mp3");
+	InvertSEHandle_ = audio_->LoadWave("sound/invert.mp3");
+
+	audio_->PlayWave(BGMHandle_);
 
 	//// 音声再生
 	//audio_->PlayWave(soundDataHandle_);
@@ -60,6 +61,10 @@ void GameScene3::Initialize()
 
 	// Block
 	blockModel_ = Model::CreateFromOBJ("block", true);
+	blockModel2_ = Model::CreateFromOBJ("block2", true);
+
+	// Door
+	doorModel_ = Model::CreateFromOBJ("door", true);
 
 	// DebugCamera
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -77,7 +82,7 @@ void GameScene3::Initialize()
 	player_->Initialize(model_, &viewProjection_, playerPostion);
 
 	// CameraController
-	CameraController::Rect cameraArea = { 11.0f, 28.0f, 6.0f, 48.0f };
+	CameraController::Rect cameraArea = { 12.0f, 27.0f, 5.0f, 38.0f };
 	cameraController_ = new CameraController();
 	cameraController_->Initialize();
 	cameraController_->SetTarget(player_);
@@ -89,15 +94,11 @@ void GameScene3::Initialize()
 	deathParticlesModel_ = Model::CreateFromOBJ("deathParticle", true); // 3Dモデルの生成
 	deathParticles_->Initialize(playerPostion, deathParticlesModel_, &viewProjection_);
 
-	if (player_->GetIsDead_() == true) {
-		finished_ = false;
-	}
 	// phase
 	phase_ = Phase::kplay;
 }
 
-void GameScene3::Update()
-{
+void GameScene3::Update() {
 
 	if (invertCooldownTimer_ > 0.0f) {
 		invertCooldownTimer_ -= 1;
@@ -118,13 +119,11 @@ void GameScene3::Update()
 	}
 
 	player_->Update();
+
 	// プレイヤーのX座標が19になったら画像を表示する
 	if (playerPosition.x >= 19.0f) {
 		invertHandle_ = true;
 	}
-
-
-
 
 	if (player_->GetIsDead_() == true) {
 		deathParticles_->Update();
@@ -133,12 +132,6 @@ void GameScene3::Update()
 	if (player_->GetIsDead_() == false) {
 		cameraController_->Update();
 	}
-
-	/*for (Enemy* enemy : enemies_) {
-		if (!nullptr) {
-			enemy->Update();
-		}
-	}*/
 
 	// Block
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -153,7 +146,6 @@ void GameScene3::Update()
 
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_C)) {
-
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
 
@@ -174,20 +166,29 @@ void GameScene3::Update()
 		viewProjection_.TransferMatrix();
 	}
 
+	if (input_->TriggerKey(DIK_SPACE)) {
+		audio_->PlayWave(JumpSEHandle_);
+	}
 
 	//反転処理
-	if (input_->TriggerKey(DIK_S) && invertCooldownTimer_ <= 0.0f) {
+	if (input_->TriggerKey(DIK_S)) {
+		audio_->PlayWave(InvertSEHandle_);
 		invertFlg = false;
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
-		cameraController_->StartRotation();   // カメラの回転を開始
-		invertCooldownTimer_ = 1.0f;          // クールダウンタイマーを1秒にリセット
+		cameraController_->StartRotation();
 	}
 
+	if (player_->GetDoorCollicion() == true) {
+		if (Player::kGravityAccleration < 0) {
+			Player::kGravityAccleration = -Player::kGravityAccleration;
+		}
+		finished_ = true;  // シーン完了フラグを設定
+	}
 }
 
-void GameScene3::GenerateBlokcs()
-{
+void GameScene3::GenerateBlokcs() {
+
 	// 要素数
 	uint32_t numBlokVirtical = mapChipField_->GetNumBlockVirtical();     // 縦
 	uint32_t numBlokHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
@@ -206,7 +207,7 @@ void GameScene3::GenerateBlokcs()
 			MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(j, i);
 
 			// 1（ブロック）の場合のみ描画
-			if (mapChipType == MapChipType::kBlock) {
+			if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kBlock2) {
 				// 既存のワールドトランスフォームがない場合は新たに生成
 				if (!worldTransformBlocks_[i][j]) {
 					WorldTransform* worldTransform = new WorldTransform();
@@ -214,6 +215,19 @@ void GameScene3::GenerateBlokcs()
 					worldTransformBlocks_[i][j] = worldTransform;
 				}
 				// ブロックの位置を設定
+				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPostionByIndex(j, i);
+				worldTransformBlocks_[i][j]->matWorld_ = MakeAffineMatrix(
+					worldTransformBlocks_[i][j]->scale_,
+					worldTransformBlocks_[i][j]->rotation_,
+					worldTransformBlocks_[i][j]->translation_);
+				worldTransformBlocks_[i][j]->TransferMatrix();
+			}
+			else if (mapChipType == MapChipType::kDoor) {
+				if (!worldTransformBlocks_[i][j]) {
+					WorldTransform* worldTransform = new WorldTransform();
+					worldTransform->Initialize();
+					worldTransformBlocks_[i][j] = worldTransform;
+				}
 				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPostionByIndex(j, i);
 				worldTransformBlocks_[i][j]->matWorld_ = MakeAffineMatrix(
 					worldTransformBlocks_[i][j]->scale_,
@@ -232,8 +246,8 @@ void GameScene3::GenerateBlokcs()
 	}
 }
 
-void GameScene3::Draw()
-{
+void GameScene3::Draw() {
+
 	// プレイヤーのX座標を取得
 	Vector3 playerPosition = player_->GetWorldPosition();
 
@@ -266,18 +280,28 @@ void GameScene3::Draw()
 		player_->Draw();
 	}
 
-
-
 	if (player_->GetIsDead_() == true) {
 		deathParticles_->Draw();
 	}
 
 	skydome_->Draw();
-	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
-			if (!worldTransformBlock)
-				continue;
-			blockModel_->Draw(*worldTransformBlock, viewProjection_);
+
+	// ブロックとドアの描画
+	for (size_t i = 0; i < worldTransformBlocks_.size(); ++i) {
+		for (size_t j = 0; j < worldTransformBlocks_[i].size(); ++j) {
+			WorldTransform* worldTransformBlock = worldTransformBlocks_[i][j];
+			if (!worldTransformBlock) continue;
+
+			MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(uint32_t(j), uint32_t(i));
+
+			if (mapChipType == MapChipType::kBlock) {
+				// ブロックの描画
+				blockModel_->Draw(*worldTransformBlock, viewProjection_);
+			}
+			else if (mapChipType == MapChipType::kDoor) {
+				// ドアの描画
+				doorModel_->Draw(*worldTransformBlock, viewProjection_);
+			}
 		}
 	}
 
@@ -292,15 +316,17 @@ void GameScene3::Draw()
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-	keySprite_->Draw();
 
+	if (playerPosition.x >= 0.0f && playerPosition.x <= 15.0f && invertFlg) {
+		keySprite_->Draw();
+	}
 
 	///
 	///反転してみようを描画
 	/// 
-
-
-
+	if (playerPosition.x >= 15.0f && playerPosition.x <= 19.0f && invertFlg) {
+		invertSprite_->Draw();
+	}
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -308,8 +334,8 @@ void GameScene3::Draw()
 #pragma endregion
 }
 
-void GameScene3::ChangePhase()
-{
+void GameScene3::ChangePhase() {
+
 	switch (phase_) {
 
 	case Phase::kplay:
@@ -321,20 +347,17 @@ void GameScene3::ChangePhase()
 			const Vector3& deathParticlesPosition = player_->GetWorldPosition();
 			deathParticles_->Initialize(deathParticlesPosition, deathParticlesModel_, &viewProjection_);
 		}
-
+		/*Clear();*/
 		break;
 
 	case Phase::kDeath:
 		if (deathParticles_ && deathParticles_->GetIsFinished()) {
 			finished_ = true;
+			audio_->StopWave(BGMHandle_);
 		}
 		break;
 	}
 }
-
-
-
-
 #pragma region 反転
 
 void GameScene3::InvertBlockPositionsWithCentering() {
@@ -342,6 +365,7 @@ void GameScene3::InvertBlockPositionsWithCentering() {
 	uint32_t numBlockVertical = mapChipField_->GetNumBlockVirtical();     // 縦
 	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
 
+	// 180度回転と空白とブロックの反転を行う
 	// 一時的な2D配列を作成してマップデータを保存
 	std::vector<std::vector<MapChipType>> tempMap(numBlockVertical, std::vector<MapChipType>(numBlockHorizontal));
 
@@ -366,20 +390,32 @@ void GameScene3::InvertBlockPositionsWithCentering() {
 				continue;
 			}
 
-			// 1と0の入れ替え（ブロックと空白の反転）
-			MapChipType invertedChip = (currentChip == MapChipType::kBlock) ? MapChipType::kBlank : MapChipType::kBlock;
+			// 1と0の入れ替え（ブロックと空白の反転）およびドアの処理
+			MapChipType invertedChip;
+			if (currentChip == MapChipType::kBlock) {
+				invertedChip = MapChipType::kBlank;
+			}
+			else if (currentChip == MapChipType::kBlank) {
+				invertedChip = MapChipType::kBlock;
+			}
+			else if (currentChip == MapChipType::kDoor) {
+				invertedChip = MapChipType::kDoor;
+			}
+			else {
+				invertedChip = MapChipType::kBlank; // その他の種類は空白にする
+			}
 
 			// マップチップを更新（位置を反転させて）
 			mapChipField_->SetMapChipTypeByIndex(invertedJ, invertedI, invertedChip);
 
-			if (invertedChip == MapChipType::kBlock) {
-				// ブロックが存在しなければ新しいワールドトランスフォームを作成
+			if (invertedChip == MapChipType::kBlock || invertedChip == MapChipType::kDoor) {
+				// ブロックまたはドアが存在しなければ新しいワールドトランスフォームを作成
 				if (!worldTransformBlocks_[invertedI][invertedJ]) {
 					WorldTransform* worldTransform = new WorldTransform();
 					worldTransform->Initialize();
 					worldTransformBlocks_[invertedI][invertedJ] = worldTransform;
 				}
-				// ブロックの位置を設定
+				// ブロックまたはドアの位置を設定
 				Vector3 newPosition = mapChipField_->GetMapChipPostionByIndex(invertedJ, invertedI);
 				worldTransformBlocks_[invertedI][invertedJ]->translation_ = newPosition;
 				worldTransformBlocks_[invertedI][invertedJ]->matWorld_ = MakeAffineMatrix(
@@ -389,7 +425,7 @@ void GameScene3::InvertBlockPositionsWithCentering() {
 				worldTransformBlocks_[invertedI][invertedJ]->TransferMatrix();
 			}
 			else {
-				// ブロックが空白になる場合は、メモリを解放して削除
+				// ブロックまたはドアが空白になる場合は、メモリを解放して削除
 				if (worldTransformBlocks_[invertedI][invertedJ]) {
 					delete worldTransformBlocks_[invertedI][invertedJ];
 					worldTransformBlocks_[invertedI][invertedJ] = nullptr;
