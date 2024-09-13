@@ -315,6 +315,7 @@ void GameScene::ChangePhase() {
 			const Vector3& deathParticlesPosition = player_->GetWorldPosition();
 			deathParticles_->Initialize(deathParticlesPosition, deathParticlesModel_, &viewProjection_);
 		}
+		/*Clear();*/
 
 		break;
 
@@ -429,5 +430,13 @@ void GameScene::InvertBlockPositionsWithCentering() {
 
 	// プレイヤーの位置を更新
 	player_->SetWorldPosition(newPlayerPosition);
+}
+void GameScene::CheckClear()
+{
+	if (input_->TriggerKey(DIK_1)) {
+		
+		
+	}
+
 }
 #pragma endregion

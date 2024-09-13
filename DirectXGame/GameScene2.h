@@ -58,6 +58,8 @@ public: // メンバ関数
 	//フェーズ切り替え
 	void ChangePhase();
 
+	void ClearPhase();
+
 	// ブロックの反転とプレイヤーの位置修正を行う関数
 	void InvertBlockPositionsWithCentering();
 

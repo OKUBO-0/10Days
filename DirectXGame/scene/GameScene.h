@@ -65,6 +65,8 @@ public: // メンバ関数
 
 	bool  GetIsFinished() const { return finished_; }
 
+	void CheckClear();
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;

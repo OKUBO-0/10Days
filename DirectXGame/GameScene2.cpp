@@ -27,6 +27,7 @@ GameScene2::~GameScene2()
 
 void GameScene2::Initialize()
 {
+	
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
@@ -88,6 +89,9 @@ void GameScene2::Initialize()
 	deathParticlesModel_ = Model::CreateFromOBJ("deathParticle", true); // 3Dモデルの生成
 	deathParticles_->Initialize(playerPostion, deathParticlesModel_, &viewProjection_);
 
+	if (player_->GetIsDead_() == true) {
+		finished_ = false;
+	}
 	// phase
 	phase_ = Phase::kplay;
 }
@@ -323,6 +327,14 @@ void GameScene2::ChangePhase()
 		}
 		break;
 	}
+}
+
+void GameScene2::ClearPhase()
+{
+	if (input_->TriggerKey(DIK_1)) {
+		
+	}
+
 }
 
 #pragma region 反転

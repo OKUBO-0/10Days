@@ -56,9 +56,10 @@ void ChengeScene() {
 			scene = Scene::kGame3;
 			// 旧シーンかいほう
 			delete titeleScene;
+			delete gameScene;
 			titeleScene = nullptr;
 			// 新シーンの生成と初期化
-
+	
 			titeleScene = new TitleScene;
 			titeleScene->Initialize();
 		}

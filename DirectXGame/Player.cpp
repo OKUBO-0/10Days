@@ -20,12 +20,7 @@ void Player::Initialize(Model* model, ViewProjection* viewProjection, const Vect
 void Player::Update() {
 
 
-	// ImGuiでマウス座標を表示
-	ImGui::Begin("Player Position");
-	ImGui::Text("Player: %f", position_.x);  // X座標を表示
-	ImGui::Text("Player: %f", position_.y);  // X座標を表示
-	//ImGui::Text("Mouse Y: %.1f", mousePos.y);  // Y座標を表示
-	ImGui::End();
+	
 
 	PrayerMove();
 	// 衝突判定を初期化
@@ -464,12 +459,12 @@ AABB Player::GetAABB() {
 	return aabb;
 }
 
-void Player::OnCollision(const Enemy* enemy) {
-
-	(void)enemy;
-	//velocity_.y += kJampAcceleration;
-	isDead_ = true;
-}
+//void Player::OnCollision(const Enemy* enemy) {
+//
+//	(void)enemy;
+//	//velocity_.y += kJampAcceleration;
+//	isDead_ = true;
+//}
 
 void Player::SetWorldPosition(const Vector3& newPosition)
 {
@@ -493,7 +488,9 @@ void Player::SetGravityDirection(const Vector3& gravityDirection) {
 
 void Player::Clear()
 {
-	isDead_ = true;
+	isDead_ = false;
+
+
 }
 
 float Player::EaseOutSine(float x) { return cosf((x * std::numbers::pi_v<float>) / 2); }
