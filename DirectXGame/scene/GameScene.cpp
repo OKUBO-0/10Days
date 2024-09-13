@@ -58,11 +58,8 @@ void GameScene::Initialize() {
 	// Block
 	blockModel_ = Model::CreateFromOBJ("block", true);
 
-	// Door
-	door_ = new Door();
-	modelDoor_ = Model::CreateFromOBJ("Door", true);
-	Vector3 doorPosition = mapChipField_->GetMapChipPostionByIndex(37, 15);
-	door_->Initialize(modelDoor_, &viewProjection_, doorPosition);
+	doorModel_ = Model::CreateFromOBJ("door", true); 
+
 
 	// DebugCamera
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -217,6 +214,19 @@ void GameScene::GenerateBlokcs() {
 					worldTransformBlocks_[i][j]->translation_);
 				worldTransformBlocks_[i][j]->TransferMatrix();
 			}
+			else if (mapChipType == MapChipType::kDoor) {
+				if (!worldTransformBlocks_[i][j]) {
+					WorldTransform* worldTransform = new WorldTransform();
+					worldTransform->Initialize();
+					worldTransformBlocks_[i][j] = worldTransform;
+				}
+				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPostionByIndex(j, i);
+				worldTransformBlocks_[i][j]->matWorld_ = MakeAffineMatrix(
+					worldTransformBlocks_[i][j]->scale_,
+					worldTransformBlocks_[i][j]->rotation_,
+					worldTransformBlocks_[i][j]->translation_);
+				worldTransformBlocks_[i][j]->TransferMatrix();
+			}
 			else {
 				// 0（空白）の場合、ワールドトランスフォームを削除（描画しない）
 				if (worldTransformBlocks_[i][j]) {
@@ -227,6 +237,8 @@ void GameScene::GenerateBlokcs() {
 		}
 	}
 }
+
+
 
 void GameScene::Draw() {
 	// プレイヤーのX座標を取得
@@ -268,16 +280,25 @@ void GameScene::Draw() {
 	}
 
 	skydome_->Draw();
-	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
-		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
-			if (!worldTransformBlock)
-				continue;
-			blockModel_->Draw(*worldTransformBlock, viewProjection_);
+	
+	// ブロックとドアの描画
+	for (size_t i = 0; i < worldTransformBlocks_.size(); ++i) {
+		for (size_t j = 0; j < worldTransformBlocks_[i].size(); ++j) {
+			WorldTransform* worldTransformBlock = worldTransformBlocks_[i][j];
+		if (!worldTransformBlock) continue;
+
+			MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(uint32_t(j), uint32_t(i));
+
+			if (mapChipType == MapChipType::kBlock) {
+				// ブロックの描画
+				blockModel_->Draw(*worldTransformBlock, viewProjection_);
+			} else if (mapChipType == MapChipType::kDoor) {
+				// ドアの描画
+				doorModel_->Draw(*worldTransformBlock, viewProjection_);
+			}
 		}
 	}
 
-	// ドアの描画
-	door_->Draw();
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

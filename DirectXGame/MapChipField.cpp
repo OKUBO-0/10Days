@@ -9,6 +9,7 @@ namespace {
 		{"0", MapChipType::kBlank},
 		{"1", MapChipType::kBlock},
 		{"2",MapChipType::kBlock2},
+		{"3",MapChipType::kDoor},
 	};
 }
 

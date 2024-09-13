@@ -112,9 +112,8 @@ private: // メンバ変数
 	Model* modelSkydome_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 
-	// Door
-	Door* door_ = nullptr;
-	Model* modelDoor_ = nullptr;
+	Model* doorModel_ = nullptr;               // ドアのモデル
+	
 
 
 	// MapChipField

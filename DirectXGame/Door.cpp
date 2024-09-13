@@ -15,10 +15,13 @@ void Door::Initialize(Model* model, ViewProjection* viewProjection, const Vector
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 	viewProjection_ = viewProjection;
+	worldTransform_.UpdateMatrix();
+
 }
 
 void Door::Update() {
 	worldTransform_.UpdateMatrix();
+	worldTransform_.TransferMatrix();
 }
 
 void Door::Draw() {
