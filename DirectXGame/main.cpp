@@ -3,6 +3,7 @@
 #include "DirectXCommon.h"
 #include "GameScene.h"
 #include "GameScene2.h"
+#include "GameScene3.h"
 #include "ImGuiManager.h"
 #include "PrimitiveDrawer.h"
 #include "TextureManager.h"
@@ -11,6 +12,7 @@
 
 GameScene* gameScene = nullptr;
 GameScene2* gameScene2 = nullptr;
+GameScene3* gameScene3 = nullptr;
 TitleScene* titeleScene = nullptr;
 
 enum class Scene {
@@ -56,27 +58,26 @@ void ChengeScene() {
 			scene = Scene::kGame3;
 			// 旧シーンかいほう
 			delete titeleScene;
-			delete gameScene;
 			titeleScene = nullptr;
 			// 新シーンの生成と初期化
 	
-			titeleScene = new TitleScene;
-			titeleScene->Initialize();
+			gameScene3 = new GameScene3;
+			gameScene3->Initialize();
 		}
 		break;
 
-	//case Scene::kGame3:
-	//	if (titeleScene->GetISFinished()) {
-	//		// sceneの変更
-	//		scene = Scene::kTitle;
-	//		// 旧シーンかいほう
-	//		delete titeleScene;
-	//		titeleScene = nullptr;
-	//		// 新シーンの生成と初期化
-	//		gameScene = new GameScene;
-	//		gameScene->Initialize();
-	//	}
-	//	break;;
+	case Scene::kGame3:
+		if (gameScene3->GetIsFinished()) {
+			// sceneの変更
+			scene = Scene::kTitle;
+			// 旧シーンかいほう
+			delete titeleScene;
+			titeleScene = nullptr;
+			// 新シーンの生成と初期化
+			titeleScene = new TitleScene;
+			titeleScene->Initialize();
+		}
+		break;;
 	}
 }
 
@@ -92,6 +93,9 @@ void UpdateScene() {
 	case Scene::kGame2:
 		gameScene2->Update();
 		break;
+	case Scene::kGame3:
+		gameScene3->Update();
+		break;
 	}
 }
 
@@ -106,6 +110,10 @@ void DrawScene() {
 		break;
 	case Scene::kGame2:
 		gameScene2->Draw();
+		break;
+
+	case Scene::kGame3:
+		gameScene3->Draw();
 		break;
 	}
 }
@@ -206,6 +214,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	// 各種解放
+	delete gameScene3;
 	delete gameScene2;
 	delete gameScene;
 	delete titeleScene;

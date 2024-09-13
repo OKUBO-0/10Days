@@ -1,11 +1,11 @@
-#include "GameScene2.h"
+#include "GameScene3.h"
 #include "TextureManager.h"
 
-GameScene2::GameScene2()
+GameScene3::GameScene3()
 {
 }
 
-GameScene2::~GameScene2()
+GameScene3::~GameScene3()
 {
 	delete model_;
 	delete player_;
@@ -25,9 +25,9 @@ GameScene2::~GameScene2()
 	worldTransformBlocks_.clear();
 }
 
-void GameScene2::Initialize()
+void GameScene3::Initialize()
 {
-	
+
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
@@ -96,7 +96,7 @@ void GameScene2::Initialize()
 	phase_ = Phase::kplay;
 }
 
-void GameScene2::Update()
+void GameScene3::Update()
 {
 	// プレイヤーのX座標を取得
 	Vector3 playerPosition = player_->GetWorldPosition();
@@ -177,17 +177,10 @@ void GameScene2::Update()
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
 		cameraController_->StartRotation();  // カメラの回転を開始
 	}
-	if (input_->TriggerKey(DIK_1)) {
-		if (Player::kGravityAccleration < 0) {
-			Player::kGravityAccleration = -Player::kGravityAccleration;
-		}
-		finished_ = true;  // シーン完了フラグを設定
-
-	}
 
 }
 
-void GameScene2::GenerateBlokcs()
+void GameScene3::GenerateBlokcs()
 {
 	// 要素数
 	uint32_t numBlokVirtical = mapChipField_->GetNumBlockVirtical();     // 縦
@@ -233,7 +226,7 @@ void GameScene2::GenerateBlokcs()
 	}
 }
 
-void GameScene2::Draw()
+void GameScene3::Draw()
 {
 	// プレイヤーのX座標を取得
 	Vector3 playerPosition = player_->GetWorldPosition();
@@ -309,7 +302,7 @@ void GameScene2::Draw()
 #pragma endregion
 }
 
-void GameScene2::ChangePhase()
+void GameScene3::ChangePhase()
 {
 	switch (phase_) {
 
@@ -334,9 +327,11 @@ void GameScene2::ChangePhase()
 }
 
 
+
+
 #pragma region 反転
 
-void GameScene2::InvertBlockPositionsWithCentering() {
+void GameScene3::InvertBlockPositionsWithCentering() {
 	// マップの縦横のブロック数を取得
 	uint32_t numBlockVertical = mapChipField_->GetNumBlockVirtical();     // 縦
 	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
