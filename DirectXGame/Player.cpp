@@ -19,6 +19,12 @@ void Player::Initialize(Model* model, ViewProjection* viewProjection, const Vect
 
 void Player::Update() {
 
+	// ImGuiでマウス座標を表示
+	ImGui::Begin("Player Position");
+	ImGui::Text("Player: %f", position_.x);  // X座標を表示
+	//ImGui::Text("Mouse Y: %.1f", mousePos.y);  // Y座標を表示
+	ImGui::End();
+
 	PrayerMove();
 	// 衝突判定を初期化
 	CollisionMapInfo collisionMapInfo;
@@ -38,15 +44,17 @@ void Player::Update() {
 	worldTransform_.TransferMatrix();
 }
 
-void Player::Draw() { model_->Draw(worldTransform_, *viewProjection_); }
+void Player::Draw() {
+	model_->Draw(worldTransform_, *viewProjection_);
+}
 
 void Player::PrayerMove() {
 	if (onGround_) {
 		// 移動入力
-		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
+		if (Input::GetInstance()->PushKey(DIK_D) || Input::GetInstance()->PushKey(DIK_A)) {
 			// 左右加速
 			Vector3 accceleration = {};
-			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+			if (Input::GetInstance()->PushKey(DIK_D)) {
 				if (velocity_.x < 0.0f) {
 					velocity_.x *= (1.0f - kAttenuation);
 				}
@@ -57,7 +65,7 @@ void Player::PrayerMove() {
 				}
 				accceleration.x += kAccleration * 2.0f;  // 移動速度を上げるための加速度を増やす
 			}
-			else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+			else if (Input::GetInstance()->PushKey(DIK_A)) {
 				if (velocity_.x > 0.0f) {
 					velocity_.x *= (1.0f - kAttenuation);
 				}
@@ -84,7 +92,7 @@ void Player::PrayerMove() {
 		}
 
 		// ジャンプ処理（ジャンプの威力を半分に設定）
-		if (Input::GetInstance()->PushKey(DIK_UP)) {
+		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
 			velocity_.x += 0;
 
 			// 重力が反転している場合、下にジャンプ

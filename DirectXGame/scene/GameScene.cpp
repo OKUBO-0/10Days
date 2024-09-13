@@ -32,6 +32,14 @@ void GameScene::Initialize() {
 	// テクスチャ読み込み
 	texturHandle_ = TextureManager::Load("pralyer.png");
 
+	//キーボードテクスチャ
+	keyHandle_ = TextureManager::Load("images/key.png");
+	keySprite_ = Sprite::Create(keyHandle_, { -20,-50 });
+
+	//反転テクスチャ
+	invertHandle_ = TextureManager::Load("images/invert.png");
+	invertSprite_ = Sprite::Create(invertHandle_, { 300,0 });
+
 	//// サウンドデータの読み込み
 	//soundDataHandle_ = audio_->LoadWave("st005.wav");
 
@@ -85,6 +93,9 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
+	// プレイヤーのX座標を取得
+	Vector3 playerPosition = player_->GetWorldPosition();
+
 	ChangePhase();
 
 	switch (phase_) {
@@ -97,6 +108,11 @@ void GameScene::Update() {
 	}
 
 	player_->Update();
+
+	// プレイヤーのX座標が19になったら画像を表示する
+	if (playerPosition.x >= 19.0f) {
+		invertHandle_ = true;
+	}
 
 	if (player_->GetIsDead_() == true) {
 		deathParticles_->Update();
@@ -147,7 +163,8 @@ void GameScene::Update() {
 
 
 	//反転処理
-	if (input_->TriggerKey(DIK_DOWN)) {
+	if (input_->TriggerKey(DIK_S) && playerPosition.x >= 15.0f) {
+		invertFlg = false;
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
 		cameraController_->StartRotation();  // カメラの回転を開始
@@ -201,6 +218,9 @@ void GameScene::GenerateBlokcs() {
 
 void GameScene::Draw() {
 
+	// プレイヤーのX座標を取得
+	Vector3 playerPosition = player_->GetWorldPosition();
+
 	// コマンドリストの取得
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 
@@ -229,12 +249,6 @@ void GameScene::Draw() {
 	if (player_->GetIsDead_() == false) {
 		player_->Draw();
 	}
-
-	/*for (Enemy* enemy : enemies_) {
-		if (!nullptr) {
-			enemy->Draw();
-		}
-	}*/
 
 	if (player_->GetIsDead_() == true) {
 		deathParticles_->Draw();
@@ -270,6 +284,17 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+	
+	if (playerPosition.x >= 0.0f && playerPosition.x <= 15.0f && invertFlg) {
+		keySprite_->Draw();
+	}
+
+	///
+	///反転してみようを描画
+	/// 
+	if (playerPosition.x >= 15.0f && playerPosition.x <= 19.0f && invertFlg) {
+		invertSprite_->Draw();
+	}
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -300,6 +325,7 @@ void GameScene::ChangePhase() {
 		break;
 	}
 }
+#pragma region 反転
 
 void GameScene::InvertBlockPositionsWithCentering() {
 	// マップの縦横のブロック数を取得
@@ -404,3 +430,4 @@ void GameScene::InvertBlockPositionsWithCentering() {
 	// プレイヤーの位置を更新
 	player_->SetWorldPosition(newPlayerPosition);
 }
+#pragma endregion
