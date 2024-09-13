@@ -48,6 +48,7 @@ void Player::Draw() {
 
 void Player::PrayerMove() {
 	if (onGround_) {
+
 		// 移動入力
 		if (Input::GetInstance()->PushKey(DIK_D) || Input::GetInstance()->PushKey(DIK_A)) {
 			// 左右加速

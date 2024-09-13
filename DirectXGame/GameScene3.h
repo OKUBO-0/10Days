@@ -126,4 +126,5 @@ private: // メンバ変数
 
 	bool finished_ = false;
 	bool invertFlg = true;
+	float invertCooldownTimer_ = 1.0f; // 反転処理のクールダウンタイマー
 };
