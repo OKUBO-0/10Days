@@ -206,8 +206,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	// 各種解放
-	delete gameScene;
 	delete gameScene2;
+	delete gameScene;
 	delete titeleScene;
 	// 3Dモデル解放
 	Model::StaticFinalize();

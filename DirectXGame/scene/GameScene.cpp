@@ -172,7 +172,11 @@ void GameScene::Update() {
 	}
 
 	if (input_->TriggerKey(DIK_1)) {
-		finished_ = true;
+		if(Player::kGravityAccleration < 0) {
+			Player::kGravityAccleration = -Player::kGravityAccleration;
+		}
+		finished_ = true;  // シーン完了フラグを設定
+		
 	}
 
 
@@ -431,12 +435,5 @@ void GameScene::InvertBlockPositionsWithCentering() {
 	// プレイヤーの位置を更新
 	player_->SetWorldPosition(newPlayerPosition);
 }
-void GameScene::CheckClear()
-{
-	if (input_->TriggerKey(DIK_1)) {
-		
-		
-	}
 
-}
 #pragma endregion

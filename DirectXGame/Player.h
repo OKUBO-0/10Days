@@ -113,7 +113,7 @@ public:
 		return gravityAccleration_;
 	}
 
-	void Clear();
+
 
 
 

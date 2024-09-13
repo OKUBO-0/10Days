@@ -40,9 +40,9 @@ void Player::Update() {
 	// 行列を定数バッファに転送
 	worldTransform_.TransferMatrix();
 
-	if (Input::GetInstance()->PushKey(DIK_1)) {
+	/*if (Input::GetInstance()->PushKey(DIK_1)) {
 		Clear();
-	}
+	}*/
 }
 
 void Player::Draw() { model_->Draw(worldTransform_, *viewProjection_); 
@@ -459,12 +459,6 @@ AABB Player::GetAABB() {
 	return aabb;
 }
 
-//void Player::OnCollision(const Enemy* enemy) {
-//
-//	(void)enemy;
-//	//velocity_.y += kJampAcceleration;
-//	isDead_ = true;
-//}
 
 void Player::SetWorldPosition(const Vector3& newPosition)
 {
@@ -486,11 +480,6 @@ void Player::SetGravityDirection(const Vector3& gravityDirection) {
 	gravityDirection_ = gravityDirection;
 }
 
-void Player::Clear()
-{
-	isDead_ = false;
 
-
-}
 
 float Player::EaseOutSine(float x) { return cosf((x * std::numbers::pi_v<float>) / 2); }

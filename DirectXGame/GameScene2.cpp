@@ -293,9 +293,7 @@ void GameScene2::Draw()
 	///
 	///反転してみようを描画
 	/// 
-	if (playerPosition.x >= 15.0f && playerPosition.x <= 19.0f && invertFlg) {
-		invertSprite_->Draw();
-	}
+	
 
 
 
@@ -329,13 +327,6 @@ void GameScene2::ChangePhase()
 	}
 }
 
-void GameScene2::ClearPhase()
-{
-	if (input_->TriggerKey(DIK_1)) {
-		
-	}
-
-}
 
 #pragma region 反転
 
