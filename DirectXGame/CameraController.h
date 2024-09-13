@@ -26,6 +26,8 @@ public:
 
 	void Reset();
 
+	void StartRotation(); // 回転開始関数
+	void UpdateRotation(); // 回転更新関数
 
 	void SetMovableArea(const Rect& area)
 	{
@@ -65,5 +67,10 @@ private:
 
 	// 速度掛率
 	static inline const float kVelocityBias = 15.0f;
+
+	bool isRotating_ = false; // 回転中フラグ
+	float rotationTimer_ = 0.0f; // 回転タイマー
+	const float kRotationDuration = 1.0f; // 回転にかかる時間（秒）
+	float initialAngle_ = 0.0f; // 回転開始時の角度
 
 };

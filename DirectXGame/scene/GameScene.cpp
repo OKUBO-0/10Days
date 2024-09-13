@@ -151,7 +151,7 @@ void GameScene::Update() {
 	if (input_->TriggerKey(DIK_DOWN)) {
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
-
+		cameraController_->StartRotation();  // カメラの回転を開始
 	}
 }
 
@@ -303,26 +303,39 @@ void GameScene::ChangePhase() {
 }
 
 void GameScene::InvertBlockPositionsWithCentering() {
-	uint32_t numBlokVirtical = mapChipField_->GetNumBlockVirtical();     // 縦
-	uint32_t numBlokHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
+	// マップの縦横のブロック数を取得
+	uint32_t numBlockVertical = mapChipField_->GetNumBlockVirtical();     // 縦
+	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
 
 	// 180度回転と空白とブロックの反転を行う
-	for (uint32_t i = 0; i < numBlokVirtical; ++i) {
-		for (uint32_t j = 0; j < numBlokHorizontal; ++j) {
-			uint32_t invertedI = numBlokVirtical - 1 - i;
-			uint32_t invertedJ = numBlokHorizontal - 1 - j;
+	// 一時的な2D配列を作成してマップデータを保存
+	std::vector<std::vector<MapChipType>> tempMap(numBlockVertical, std::vector<MapChipType>(numBlockHorizontal));
 
-			MapChipType currentChip = mapChipField_->GetMapChipTypeByIndex(j, i);
+	// 現在のマップデータを一時配列にコピー
+	for (uint32_t i = 0; i < numBlockVertical; ++i) {
+		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+			tempMap[i][j] = mapChipField_->GetMapChipTypeByIndex(j, i);
+		}
+	}
+
+	// マップ全体をループして処理（上下左右反転）
+	for (uint32_t i = 0; i < numBlockVertical; ++i) {
+		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+			uint32_t invertedI = numBlockVertical - 1 - i;
+			uint32_t invertedJ = numBlockHorizontal - 1 - j;
+
+			MapChipType currentChip = tempMap[i][j];
 
 			// block2 の場合は反転しない
 			if (currentChip == MapChipType::kBlock2) {
+				mapChipField_->SetMapChipTypeByIndex(invertedJ, invertedI, currentChip);
 				continue;
 			}
 
-			// 空白とブロックの反転
+			// 1と0の入れ替え（ブロックと空白の反転）
 			MapChipType invertedChip = (currentChip == MapChipType::kBlock) ? MapChipType::kBlank : MapChipType::kBlock;
 
-			// マップチップを更新
+			// マップチップを更新（位置を反転させて）
 			mapChipField_->SetMapChipTypeByIndex(invertedJ, invertedI, invertedChip);
 
 			if (invertedChip == MapChipType::kBlock) {
@@ -332,6 +345,7 @@ void GameScene::InvertBlockPositionsWithCentering() {
 					worldTransform->Initialize();
 					worldTransformBlocks_[invertedI][invertedJ] = worldTransform;
 				}
+				// ブロックの位置を設定
 				Vector3 newPosition = mapChipField_->GetMapChipPostionByIndex(invertedJ, invertedI);
 				worldTransformBlocks_[invertedI][invertedJ]->translation_ = newPosition;
 				worldTransformBlocks_[invertedI][invertedJ]->matWorld_ = MakeAffineMatrix(

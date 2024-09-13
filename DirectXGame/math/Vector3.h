@@ -1,5 +1,6 @@
 #ifndef VECTOR3_H
 #define VECTOR3_H
+#include "Matrix4x4.h"  // Matrix4x4 の定義をインクルード
 
 class Vector3 {
 public:
@@ -32,5 +33,14 @@ public:
         return *this;
     }
 };
+
+// MultiplyMatrixVector を Vector3 クラス外に静的関数として定義する
+inline Vector3 MultiplyMatrixVector(const Matrix4x4& mat, const Vector3& vec) {
+    Vector3 result;
+    result.x = mat.m[0][0] * vec.x + mat.m[1][0] * vec.y + mat.m[2][0] * vec.z + mat.m[3][0];
+    result.y = mat.m[0][1] * vec.x + mat.m[1][1] * vec.y + mat.m[2][1] * vec.z + mat.m[3][1];
+    result.z = mat.m[0][2] * vec.x + mat.m[1][2] * vec.y + mat.m[2][2] * vec.z + mat.m[3][2];
+    return result;
+}
 
 #endif // VECTOR3_H
