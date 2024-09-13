@@ -34,6 +34,7 @@ enum Corner {
 
 class Enemy;
 class MapChipField;
+
 class Player {
 
 public:

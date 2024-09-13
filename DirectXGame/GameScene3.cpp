@@ -66,13 +66,13 @@ void GameScene3::Initialize()
 
 	// MapChipFiled
 	mapChipField_ = new MapChipField;
-	mapChipField_->LoadMapChipCsv("Resources/map2.csv");
+	mapChipField_->LoadMapChipCsv("Resources/map3.csv");
 	GenerateBlokcs();
 
 	// Player
 	player_ = new Player();
 	model_ = Model::CreateFromOBJ("player", true); // 3Dモデルの生成
-	Vector3 playerPostion = mapChipField_->GetMapChipPostionByIndex(1, 34);
+	Vector3 playerPostion = mapChipField_->GetMapChipPostionByIndex(3, 3);
 	player_->SetMapChipField(mapChipField_);
 	player_->Initialize(model_, &viewProjection_, playerPostion);
 
@@ -98,6 +98,10 @@ void GameScene3::Initialize()
 
 void GameScene3::Update()
 {
+
+	if (invertCooldownTimer_ > 0.0f) {
+		invertCooldownTimer_ -= 1;
+	}
 	// プレイヤーのX座標を取得
 	Vector3 playerPosition = player_->GetWorldPosition();
 
@@ -150,7 +154,7 @@ void GameScene3::Update()
 	if (input_->TriggerKey(DIK_C)) {
 
 		isDebugCameraActive_ = !isDebugCameraActive_;
-	}
+		}
 
 #endif // DEBUG
 
@@ -170,15 +174,15 @@ void GameScene3::Update()
 	}
 
 
-	//反転処理
-	if (input_->TriggerKey(DIK_S)) {
+	if (input_->TriggerKey(DIK_S) && invertCooldownTimer_ <= 0.0f) {
 		invertFlg = false;
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
-		cameraController_->StartRotation();  // カメラの回転を開始
+		cameraController_->StartRotation();   // カメラの回転を開始
+		invertCooldownTimer_ = 1.0f;          // クールダウンタイマーを1秒にリセット
 	}
 
-}
+	}
 
 void GameScene3::GenerateBlokcs()
 {
