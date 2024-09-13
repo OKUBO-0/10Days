@@ -2,6 +2,7 @@
 #include "AxisIndicator.h"
 #include "DirectXCommon.h"
 #include "GameScene.h"
+#include "GameScene2.h"
 #include "ImGuiManager.h"
 #include "PrimitiveDrawer.h"
 #include "TextureManager.h"
@@ -9,6 +10,7 @@
 #include "WinApp.h"
 
 GameScene* gameScene = nullptr;
+GameScene2* gameScene2 = nullptr;
 TitleScene* titeleScene = nullptr;
 
 enum class Scene {
@@ -44,35 +46,36 @@ void ChengeScene() {
 			delete gameScene;
 			titeleScene = nullptr;
 			// 新シーンの生成と初期化
-			titeleScene = new TitleScene;
-			titeleScene->Initialize();
+			gameScene2 = new GameScene2;
+			gameScene2->Initialize();
 		}
 		break;
 	case Scene::kGame2:
-		if (titeleScene->GetISFinished()) {
+		if (gameScene2->GetIsFinished()) {
 			// sceneの変更
 			scene = Scene::kGame3;
 			// 旧シーンかいほう
 			delete titeleScene;
 			titeleScene = nullptr;
 			// 新シーンの生成と初期化
-			gameScene = new GameScene;
-			gameScene->Initialize();
+
+			titeleScene = new TitleScene;
+			titeleScene->Initialize();
 		}
 		break;
 
-	case Scene::kGame3:
-		if (titeleScene->GetISFinished()) {
-			// sceneの変更
-			scene = Scene::kTitle;
-			// 旧シーンかいほう
-			delete titeleScene;
-			titeleScene = nullptr;
-			// 新シーンの生成と初期化
-			gameScene = new GameScene;
-			gameScene->Initialize();
-		}
-		break;;
+	//case Scene::kGame3:
+	//	if (titeleScene->GetISFinished()) {
+	//		// sceneの変更
+	//		scene = Scene::kTitle;
+	//		// 旧シーンかいほう
+	//		delete titeleScene;
+	//		titeleScene = nullptr;
+	//		// 新シーンの生成と初期化
+	//		gameScene = new GameScene;
+	//		gameScene->Initialize();
+	//	}
+	//	break;;
 	}
 }
 
@@ -85,6 +88,9 @@ void UpdateScene() {
 	case Scene::kGame:
 		gameScene->Update();
 		break;
+	case Scene::kGame2:
+		gameScene2->Update();
+		break;
 	}
 }
 
@@ -96,6 +102,9 @@ void DrawScene() {
 		break;
 	case Scene::kGame:
 		gameScene->Draw();
+		break;
+	case Scene::kGame2:
+		gameScene2->Draw();
 		break;
 	}
 }
@@ -197,6 +206,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// 各種解放
 	delete gameScene;
+	delete gameScene2;
 	delete titeleScene;
 	// 3Dモデル解放
 	Model::StaticFinalize();

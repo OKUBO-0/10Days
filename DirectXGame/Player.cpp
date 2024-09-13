@@ -44,6 +44,10 @@ void Player::Update() {
 	worldTransform_.UpdateMatrix();
 	// 行列を定数バッファに転送
 	worldTransform_.TransferMatrix();
+
+	if (Input::GetInstance()->PushKey(DIK_1)) {
+		Clear();
+	}
 }
 
 void Player::Draw() { model_->Draw(worldTransform_, *viewProjection_); 
@@ -485,6 +489,11 @@ void Player::SetRotation(const Quaternion& rotation) {
 // プレイヤーの重力方向を設定するメソッド
 void Player::SetGravityDirection(const Vector3& gravityDirection) {
 	gravityDirection_ = gravityDirection;
+}
+
+void Player::Clear()
+{
+	isDead_ = true;
 }
 
 float Player::EaseOutSine(float x) { return cosf((x * std::numbers::pi_v<float>) / 2); }

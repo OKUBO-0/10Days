@@ -1,3 +1,4 @@
+#pragma once
 #include "Viewprojection.h"
 #include "Player.h"
 #include "Vector3.h"

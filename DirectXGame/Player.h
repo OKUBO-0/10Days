@@ -113,6 +113,9 @@ public:
 		return gravityAccleration_;
 	}
 
+	void Clear();
+
+
 
 	static float kGravityAccleration;  // 静的メンバー変数の宣言
 	bool onGround_ = true;

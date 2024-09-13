@@ -1,10 +1,12 @@
-#include "GameScene.h"
+#include "GameScene2.h"
 #include "TextureManager.h"
-#include <cassert>
 
-GameScene::GameScene() {}
+GameScene2::GameScene2()
+{
+}
 
-GameScene::~GameScene() {
+GameScene2::~GameScene2()
+{
 	delete model_;
 	delete player_;
 	delete blockModel_;
@@ -23,8 +25,8 @@ GameScene::~GameScene() {
 	worldTransformBlocks_.clear();
 }
 
-void GameScene::Initialize() {
-
+void GameScene2::Initialize()
+{
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
@@ -37,8 +39,8 @@ void GameScene::Initialize() {
 	keySprite_ = Sprite::Create(keyHandle_, { -20,-50 });
 
 	//反転テクスチャ
-	invertHandle_= TextureManager::Load("images/invert.png");
-	invertSprite_=Sprite::Create(invertHandle_, { 300,0 });
+	invertHandle_ = TextureManager::Load("images/invert.png");
+	invertSprite_ = Sprite::Create(invertHandle_, { 300,0 });
 
 	//// サウンドデータの読み込み
 	//soundDataHandle_ = audio_->LoadWave("st005.wav");
@@ -63,7 +65,7 @@ void GameScene::Initialize() {
 
 	// MapChipFiled
 	mapChipField_ = new MapChipField;
-	mapChipField_->LoadMapChipCsv("Resources/map.csv");
+	mapChipField_->LoadMapChipCsv("Resources/map2.csv");
 	GenerateBlokcs();
 
 	// Player
@@ -90,7 +92,8 @@ void GameScene::Initialize() {
 	phase_ = Phase::kplay;
 }
 
-void GameScene::Update() {
+void GameScene2::Update()
+{
 	// プレイヤーのX座標を取得
 	Vector3 playerPosition = player_->GetWorldPosition();
 
@@ -164,22 +167,17 @@ void GameScene::Update() {
 
 
 	//反転処理
-	if (input_->TriggerKey(DIK_S)&& playerPosition.x >= 15.0f) {
+	if (input_->TriggerKey(DIK_S) && playerPosition.x >= 15.0f) {
 		invertFlg = false;
 		mapChipField_->InvertMap();
 		InvertBlockPositionsWithCentering();  // 位置を調整しながら反転する
 		cameraController_->StartRotation();  // カメラの回転を開始
 	}
 
-	if (input_->TriggerKey(DIK_1)) {
-		finished_ = true;
-	}
-
-
-
 }
 
-void GameScene::GenerateBlokcs() {
+void GameScene2::GenerateBlokcs()
+{
 	// 要素数
 	uint32_t numBlokVirtical = mapChipField_->GetNumBlockVirtical();     // 縦
 	uint32_t numBlokHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横
@@ -224,10 +222,11 @@ void GameScene::GenerateBlokcs() {
 	}
 }
 
-void GameScene::Draw() {
+void GameScene2::Draw()
+{
 	// プレイヤーのX座標を取得
 	Vector3 playerPosition = player_->GetWorldPosition();
-	
+
 	// コマンドリストの取得
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 
@@ -286,11 +285,11 @@ void GameScene::Draw() {
 	if (playerPosition.x >= 0.0f && playerPosition.x <= 15.0f && invertFlg) {
 		keySprite_->Draw();
 	}
-	
+
 	///
 	///反転してみようを描画
 	/// 
-	if (playerPosition.x >= 15.0f&& playerPosition.x <= 19.0f&&invertFlg) {
+	if (playerPosition.x >= 15.0f && playerPosition.x <= 19.0f && invertFlg) {
 		invertSprite_->Draw();
 	}
 
@@ -302,8 +301,8 @@ void GameScene::Draw() {
 #pragma endregion
 }
 
-void GameScene::ChangePhase() {
-
+void GameScene2::ChangePhase()
+{
 	switch (phase_) {
 
 	case Phase::kplay:
@@ -325,9 +324,10 @@ void GameScene::ChangePhase() {
 		break;
 	}
 }
+
 #pragma region 反転
 
-void GameScene::InvertBlockPositionsWithCentering() {
+void GameScene2::InvertBlockPositionsWithCentering() {
 	// マップの縦横のブロック数を取得
 	uint32_t numBlockVertical = mapChipField_->GetNumBlockVirtical();     // 縦
 	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal(); // 横

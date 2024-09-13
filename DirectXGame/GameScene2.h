@@ -19,22 +19,21 @@
 
 
 
-
 /// <summary>
 /// ゲームシーン
 /// </summary>
-class GameScene {
+class GameScene2 {
 
 public: // メンバ関数
 	/// <summary>
 	/// コンストクラタ
 	/// </summary>
-	GameScene();
+	GameScene2();
 
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~GameScene();
+	~GameScene2();
 
 	/// <summary>
 	/// 初期化
