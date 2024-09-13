@@ -109,6 +109,7 @@ struct Quaternion {
     }
 };
 
+Quaternion EulerToQuaternion(float pitch, float yaw, float roll);
 // クォータニオンをオイラー角に変換する関数
 inline Vector3 QuaternionToEuler(const Quaternion& q) {
     return Quaternion::ToEuler(q);

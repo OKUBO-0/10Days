@@ -2,6 +2,7 @@
 
 #include "Matrix4x4.h"
 #include "Vector3.h"
+#include "Mymath.h"
 #include <d3d12.h>
 #include <type_traits>
 #include <wrl.h>
@@ -60,6 +61,15 @@ public:
 	/// 行列を更新する
 	/// </summary>
 	void UpdateMatrix();
+
+	void UpdateViewMatrixZFree() {
+		// 拡大率を1に固定し、回転と平行移動を適用
+		matView = MakeAffineMatrix({ 1, 1, 1 }, rotation_, translation_);
+		matView = Inverse(matView); // 行列の逆行列を求める
+		UpdateProjectionMatrix();   // 射影行列の更新
+		TransferMatrix();           // 定数バッファに転送
+	}
+
 	/// <summary>
 	/// 行列を転送する
 	/// </summary>

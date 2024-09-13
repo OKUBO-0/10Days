@@ -1,7 +1,7 @@
 #include "Viewprojection.h"
 #include "Player.h"
 #include "Vector3.h"
-
+#include "Input.h"
 
 
 class Player;
@@ -29,6 +29,8 @@ public:
 	void StartRotation(); // 回転開始関数
 	void UpdateRotation(); // 回転更新関数
 
+	void HandleInput();
+
 	void SetMovableArea(const Rect& area)
 	{
 		movableArea_ = area;
@@ -44,6 +46,8 @@ public:
 	const ViewProjection& GetViewProjection()const { return viewProjection_; }
 
 private:
+
+	Input* input_ = nullptr;
 	// ビュープロジェクション
 	ViewProjection viewProjection_;
 
@@ -72,5 +76,8 @@ private:
 	float rotationTimer_ = 0.0f; // 回転タイマー
 	const float kRotationDuration = 1.0f; // 回転にかかる時間（秒）
 	float initialAngle_ = 0.0f; // 回転開始時の角度
-
+	bool isInverted_ = true;  // カメラが反転しているかどうかを表すフラグ
+	bool isUpsideDown_ = false; // プレイヤーが逆さまかどうかを追跡
+	int flipCount_ = false;
+	/*static float rotationAccum_ = 0.0f;*/
 };
